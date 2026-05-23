@@ -36,7 +36,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 .card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.05)}
 .card.highlight{box-shadow:0 1px 3px rgba(0,0,0,.06),0 0 0 1.5px #0071e3}
 
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:16px}
 .kpi{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.05)}
 .kpi-label{font-size:12px;color:#86868b;margin-bottom:8px}
 .kpi-val{font-size:28px;font-weight:600;letter-spacing:-.5px;color:#1d1d1f;line-height:1}
@@ -163,6 +163,16 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
       <div class="kpi-label">注册→下单转化</div>
       <div class="kpi-val" id="kv-cvr">—</div>
       <div class="kpi-hint" id="kh-cvr"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">支付订单数</div>
+      <div class="kpi-val orange" id="kv-orders">—</div>
+      <div class="kpi-hint" id="kh-orders"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">客单价</div>
+      <div class="kpi-val" id="kv-arpu">—</div>
+      <div class="kpi-hint" id="kh-arpu"></div>
     </div>
   </div>
 
@@ -369,36 +379,36 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 /* ── 数据 ── */
 // ===CHAOSTAR_DATA_START===
 const TREND = [
-  {d:'2026-04-23',l:'4/23',reg:126,ord:0,amt:0.0,push:true},
-  {d:'2026-04-24',l:'4/24',reg:86,ord:0,amt:0.0,push:true},
-  {d:'2026-04-25',l:'4/25',reg:33,ord:0,amt:0.0},
-  {d:'2026-04-26',l:'4/26',reg:7,ord:0,amt:0.0},
-  {d:'2026-04-27',l:'4/27',reg:80,ord:0,amt:0.0,push:true},
-  {d:'2026-04-28',l:'4/28',reg:76,ord:0,amt:0.0,push:true},
-  {d:'2026-04-29',l:'4/29',reg:37,ord:0,amt:0.0},
-  {d:'2026-04-30',l:'4/30',reg:35,ord:0,amt:0.0},
-  {d:'2026-05-01',l:'5/1',reg:3,ord:1,amt:4.57},
-  {d:'2026-05-02',l:'5/2',reg:23,ord:3,amt:27.26},
-  {d:'2026-05-03',l:'5/3',reg:9,ord:4,amt:36.9},
-  {d:'2026-05-04',l:'5/4',reg:5,ord:1,amt:6.22},
-  {d:'2026-05-05',l:'5/5',reg:7,ord:3,amt:80.77},
-  {d:'2026-05-06',l:'5/6',reg:61,ord:12,amt:125.82,push:true},
-  {d:'2026-05-07',l:'5/7',reg:40,ord:15,amt:151.5,push:true},
-  {d:'2026-05-08',l:'5/8',reg:46,ord:16,amt:210.53,push:true},
-  {d:'2026-05-09',l:'5/9',reg:13,ord:11,amt:162.34},
-  {d:'2026-05-10',l:'5/10',reg:7,ord:3,amt:84.49},
-  {d:'2026-05-11',l:'5/11',reg:26,ord:6,amt:111.0},
-  {d:'2026-05-12',l:'5/12',reg:27,ord:7,amt:57.64},
-  {d:'2026-05-13',l:'5/13',reg:21,ord:4,amt:71.97},
-  {d:'2026-05-14',l:'5/14',reg:18,ord:4,amt:55.56},
-  {d:'2026-05-15',l:'5/15',reg:6,ord:8,amt:109.01},
-  {d:'2026-05-17',l:'5/17',reg:1,ord:1,amt:6.2},
-  {d:'2026-05-18',l:'5/18',reg:34,ord:9,amt:103.05},
-  {d:'2026-05-19',l:'5/19',reg:124,ord:10,amt:120.43,push:true},
-  {d:'2026-05-20',l:'5/20',reg:191,ord:16,amt:204.54,push:true},
-  {d:'2026-05-21',l:'5/21',reg:142,ord:32,amt:395.27,launch:true},
-  {d:'2026-05-22',l:'5/22',reg:125,ord:26,amt:350.17,launch:true},
-  {d:'2026-05-23',l:'5/23',reg:7,ord:3,amt:45.47,launch:true},
+  {d:'2026-04-23',l:'4/23',reg:126,ord:0,tot:0,amt:0.0,push:true},
+  {d:'2026-04-24',l:'4/24',reg:86,ord:0,tot:0,amt:0.0,push:true},
+  {d:'2026-04-25',l:'4/25',reg:33,ord:0,tot:0,amt:0.0},
+  {d:'2026-04-26',l:'4/26',reg:7,ord:0,tot:0,amt:0.0},
+  {d:'2026-04-27',l:'4/27',reg:80,ord:0,tot:0,amt:0.0,push:true},
+  {d:'2026-04-28',l:'4/28',reg:76,ord:0,tot:0,amt:0.0,push:true},
+  {d:'2026-04-29',l:'4/29',reg:37,ord:0,tot:0,amt:0.0},
+  {d:'2026-04-30',l:'4/30',reg:35,ord:0,tot:0,amt:0.0},
+  {d:'2026-05-01',l:'5/1',reg:3,ord:1,tot:1,amt:4.57},
+  {d:'2026-05-02',l:'5/2',reg:23,ord:3,tot:3,amt:27.26},
+  {d:'2026-05-03',l:'5/3',reg:9,ord:4,tot:4,amt:36.9},
+  {d:'2026-05-04',l:'5/4',reg:5,ord:1,tot:1,amt:6.22},
+  {d:'2026-05-05',l:'5/5',reg:7,ord:3,tot:4,amt:80.77},
+  {d:'2026-05-06',l:'5/6',reg:61,ord:12,tot:12,amt:125.82,push:true},
+  {d:'2026-05-07',l:'5/7',reg:40,ord:15,tot:15,amt:151.5,push:true},
+  {d:'2026-05-08',l:'5/8',reg:46,ord:16,tot:16,amt:210.53,push:true},
+  {d:'2026-05-09',l:'5/9',reg:13,ord:11,tot:11,amt:162.34},
+  {d:'2026-05-10',l:'5/10',reg:7,ord:3,tot:3,amt:84.49},
+  {d:'2026-05-11',l:'5/11',reg:26,ord:6,tot:6,amt:111.0},
+  {d:'2026-05-12',l:'5/12',reg:27,ord:7,tot:7,amt:57.64},
+  {d:'2026-05-13',l:'5/13',reg:21,ord:4,tot:4,amt:71.97},
+  {d:'2026-05-14',l:'5/14',reg:18,ord:4,tot:4,amt:55.56},
+  {d:'2026-05-15',l:'5/15',reg:6,ord:8,tot:8,amt:109.01},
+  {d:'2026-05-17',l:'5/17',reg:1,ord:1,tot:1,amt:6.2},
+  {d:'2026-05-18',l:'5/18',reg:34,ord:9,tot:9,amt:103.05},
+  {d:'2026-05-19',l:'5/19',reg:124,ord:10,tot:11,amt:120.43,push:true},
+  {d:'2026-05-20',l:'5/20',reg:191,ord:16,tot:16,amt:204.54,push:true},
+  {d:'2026-05-21',l:'5/21',reg:142,ord:32,tot:35,amt:395.27,launch:true},
+  {d:'2026-05-22',l:'5/22',reg:125,ord:26,tot:30,amt:350.17,launch:true},
+  {d:'2026-05-23',l:'5/23',reg:7,ord:3,tot:3,amt:45.47,launch:true},
 ];
 
 const BEHAVIOR = [
@@ -477,7 +487,7 @@ function getFiltered(range){
 
 /* ── KPI ── */
 function updateKPI(data){
-  const reg=sum(data,'reg'),ord=sum(data,'ord'),amt=sum(data,'amt'),days=data.length;
+  const reg=sum(data,'reg'),ord=sum(data,'ord'),tot=sum(data,'tot'),amt=sum(data,'amt'),days=data.length;
   $('kv-reg').textContent=fmt(reg);
   $('kh-reg').textContent=`${days} 天 · 日均 ${(reg/days).toFixed(0)} 人`;
   $('kv-amt').textContent='¥'+fmt(Math.round(amt));
@@ -485,6 +495,11 @@ function updateKPI(data){
   $('kv-profit').textContent='¥'+fmt(Math.round(amt*.15));
   $('kv-cvr').textContent=pct(ord,reg);
   $('kh-cvr').textContent=`下单 ${ord} / 注册 ${reg}`;
+  $('kv-orders').textContent=fmt(tot);
+  $('kh-orders').textContent=`日均 ${days>0?(tot/days).toFixed(1):0} 单`;
+  const arpu = tot>0?(amt/tot):0;
+  $('kv-arpu').textContent='¥'+(arpu).toFixed(1);
+  $('kh-arpu').textContent=`流水 ÷ 订单数`;
 }
 
 /* ── macro funnel ── */
