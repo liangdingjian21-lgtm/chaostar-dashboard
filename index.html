@@ -124,9 +124,9 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
   <div class="vline"></div>
   <span class="filter-label">自定义日期</span>
   <div class="date-range">
-    <input type="date" id="dateFrom" value="2026-04-20" min="2026-04-20" max="2026-05-22">
+    <input type="date" id="dateFrom" value="2026-04-23" min="2026-04-23" max="2026-05-23">
     <span>—</span>
-    <input type="date" id="dateTo" value="2026-05-22" min="2026-04-20" max="2026-05-22">
+    <input type="date" id="dateTo" value="2026-05-23" min="2026-04-23" max="2026-05-23">
     <button class="date-apply" id="applyDate">应用</button>
   </div>
   <div class="vline"></div>
@@ -826,6 +826,21 @@ function buildFooter(){
   const el = document.getElementById('footerDate');
   if(el) el.textContent = '最后更新：' + LAST_UPDATED;
 }
+
+/* ── 动态设置日期选择器的 min / max ── */
+(function initDateRange(){
+  if(!TREND||!TREND.length) return;
+  const minD = TREND[0].d;
+  const maxD = TREND[TREND.length-1].d;
+  const from = $('dateFrom');
+  const to   = $('dateTo');
+  from.min = minD; from.max = maxD;
+  to.min   = minD; to.max   = maxD;
+  if(from.value < minD) from.value = minD;
+  if(from.value > maxD) from.value = maxD;
+  if(to.value   < minD) to.value   = minD;
+  if(to.value   > maxD) to.value   = maxD;
+})();
 
 /* ── init ── */
 refresh();
