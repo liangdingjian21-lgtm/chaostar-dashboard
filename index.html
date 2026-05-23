@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>超星云印 · 数据看板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;padding:36px 40px 60px}
+
+.header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px}
+.header h1{font-size:22px;font-weight:600;letter-spacing:-.3px}
+.header p{font-size:13px;color:#86868b;margin-top:3px}
+.update-tag{font-size:11px;color:#86868b;background:#ebebed;border-radius:20px;padding:4px 12px}
+
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.filter-label{font-size:12px;color:#86868b;white-space:nowrap}
+.seg{display:flex;background:#e8e8ed;border-radius:10px;padding:3px;gap:2px}
+.seg-btn{font-size:12px;font-family:inherit;border:none;background:transparent;padding:5px 13px;border-radius:8px;cursor:pointer;color:#1d1d1f;transition:background .15s,color .15s;white-space:nowrap}
+.seg-btn.active{background:#fff;color:#0071e3;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.vline{width:1px;height:22px;background:#d2d2d7}
+.date-range{display:flex;align-items:center;gap:6px;background:#e8e8ed;border-radius:10px;padding:4px 10px}
+.date-range input[type=date]{font-size:12px;font-family:inherit;border:none;background:transparent;color:#1d1d1f;outline:none;cursor:pointer}
+.date-range span{font-size:12px;color:#86868b}
+.date-apply{font-size:11px;font-family:inherit;border:none;background:#0071e3;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;font-weight:500}
+.date-apply:hover{background:#0077ed}
+.range-desc{font-size:12px;color:#0071e3;font-weight:500}
+
+.tab-nav{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid #d2d2d7}
+.tab-btn{font-size:13px;font-family:inherit;border:none;background:transparent;padding:10px 20px;cursor:pointer;color:#86868b;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.tab-btn.active{color:#0071e3;font-weight:500;border-bottom-color:#0071e3}
+
+.panel{display:none}.panel.active{display:block}
+
+.card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.05)}
+.card.highlight{box-shadow:0 1px 3px rgba(0,0,0,.06),0 0 0 1.5px #0071e3}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.kpi{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.05)}
+.kpi-label{font-size:12px;color:#86868b;margin-bottom:8px}
+.kpi-val{font-size:28px;font-weight:600;letter-spacing:-.5px;color:#1d1d1f;line-height:1}
+.kpi-val.blue{color:#0071e3}.kpi-val.green{color:#30a86d}.kpi-val.orange{color:#f57c00}
+.kpi-hint{font-size:11px;color:#aeaeb2;margin-top:6px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px}
+
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.chart-title{font-size:13px;font-weight:600;color:#1d1d1f}
+.chart-note{font-size:11px;color:#aeaeb2}
+.legend{display:flex;gap:14px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:#86868b}
+.ld{width:8px;height:8px;border-radius:2px}
+
+.phase-badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin-bottom:10px;background:#f2f2f7;color:#86868b}
+.phase-badge.live{background:#d1f5e3;color:#1a7a49}
+.phase-name{font-size:14px;font-weight:600;color:#1d1d1f;margin-bottom:12px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid #f5f5f7}
+.stat-row:last-child{border-bottom:none}
+.sk{font-size:12px;color:#86868b}.sv{font-size:13px;font-weight:500;color:#1d1d1f}
+.up{font-size:11px;color:#30a86d;margin-left:4px}
+
+/* funnel - macro */
+.macro-funnel{margin-bottom:0}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}
+.mf-block{background:#f5f5f7;border-radius:12px;padding:14px 16px}
+.mf-label{font-size:11px;color:#86868b;margin-bottom:6px}
+.mf-bar-wrap{background:#e8e8ed;border-radius:6px;height:22px;overflow:hidden;margin-bottom:4px}
+.mf-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:11px;font-weight:500;color:#fff;transition:width .5s ease}
+.mf-pct{font-size:11px;color:#86868b}
+.mf-note{font-size:10px;color:#aeaeb2;margin-top:8px;line-height:1.6}
+
+/* behavior funnel */
+.bf-step{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.bf-name{font-size:12px;color:#1d1d1f;width:120px;flex-shrink:0;font-weight:500}
+.bf-track{flex:1;background:#f2f2f7;border-radius:6px;height:28px;overflow:hidden;position:relative}
+.bf-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:500;color:#fff;justify-content:space-between;transition:width .6s ease}
+.bf-arrow{text-align:center;font-size:11px;color:#aeaeb2;padding:1px 0;margin-bottom:4px;margin-left:132px}
+
+/* day detail */
+.day-detail{background:#f5f5f7;border-radius:10px;padding:14px 16px;margin-top:12px;display:none}
+.day-detail.show{display:block}
+.dd-title{font-size:12px;font-weight:600;color:#1d1d1f;margin-bottom:8px}
+.dd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.dd-item{background:#fff;border-radius:8px;padding:10px 12px}
+.dd-label{font-size:10px;color:#86868b;margin-bottom:3px}
+.dd-val{font-size:16px;font-weight:600;color:#1d1d1f}
+
+/* repurchase */
+.funnel-item{margin-bottom:10px}
+.funnel-meta{display:flex;justify-content:space-between;font-size:11px;color:#86868b;margin-bottom:4px}
+.funnel-track{background:#f2f2f7;border-radius:6px;height:20px;overflow:hidden}
+.funnel-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:11px;font-weight:500;color:#fff}
+.f-blue{background:#0071e3}.f-indigo{background:#5856d6}.f-teal{background:#30a86d}
+.funnel-note{font-size:10px;color:#aeaeb2;margin-top:8px;line-height:1.6}
+
+.data-note{background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.05);font-size:12px;color:#86868b;line-height:1.8;margin-bottom:16px}
+
+.footer{text-align:center;font-size:11px;color:#c7c7cc;margin-top:40px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>超星云印 · 运营数据看板</h1>
+    <p>小程序上线第 33 天 &nbsp;·&nbsp; 深圳全量推广第 2 天</p>
+  </div>
+  <span class="update-tag">更新于 2026 / 5 / 22</span>
+</div>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <span class="filter-label">快捷筛选</span>
+  <div class="seg" id="rangeSeg">
+    <button class="seg-btn active" data-range="all">全部</button>
+    <button class="seg-btn" data-range="gray">灰度测试期</button>
+    <button class="seg-btn" data-range="launch">正式推广期</button>
+    <button class="seg-btn" data-range="7d">近 7 天</button>
+    <button class="seg-btn" data-range="14d">近 14 天</button>
+  </div>
+  <div class="vline"></div>
+  <span class="filter-label">自定义日期</span>
+  <div class="date-range">
+    <input type="date" id="dateFrom" value="2026-04-20" min="2026-04-20" max="2026-05-22">
+    <span>—</span>
+    <input type="date" id="dateTo" value="2026-05-22" min="2026-04-20" max="2026-05-22">
+    <button class="date-apply" id="applyDate">应用</button>
+  </div>
+  <div class="vline"></div>
+  <span class="range-desc" id="rangeDesc"></span>
+</div>
+
+<!-- Tabs -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="overview">整体概览</button>
+  <button class="tab-btn" data-tab="funnel">行为漏斗</button>
+  <button class="tab-btn" data-tab="repurchase">复购分析</button>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="panel active" id="panel-overview">
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">注册用户</div>
+      <div class="kpi-val" id="kv-reg">—</div>
+      <div class="kpi-hint" id="kh-reg"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">打印流水</div>
+      <div class="kpi-val blue" id="kv-amt">—</div>
+      <div class="kpi-hint" id="kh-amt"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">估算利润</div>
+      <div class="kpi-val green" id="kv-profit">—</div>
+      <div class="kpi-hint">按流水 15% 估算</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">注册→下单转化</div>
+      <div class="kpi-val" id="kv-cvr">—</div>
+      <div class="kpi-hint" id="kh-cvr"></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <span class="phase-badge">灰度测试期</span>
+      <div class="phase-name">4 / 20 — 5 / 20（31 天）</div>
+      <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">12,000 人</span></div>
+      <div class="stat-row"><span class="sk">注册用户</span><span class="sv">1,188 人</span></div>
+      <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">9.9%</span></div>
+      <div class="stat-row"><span class="sk">下单用户</span><span class="sv">210 人</span></div>
+      <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥2,679</span></div>
+      <div class="stat-row"><span class="sk">日均注册</span><span class="sv">38 人 / 天</span></div>
+      <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥86 / 天</span></div>
+    </div>
+    <div class="card highlight">
+      <span class="phase-badge live">深圳全量推广中</span>
+      <div class="phase-name">5 / 21 — 至今（2 天）</div>
+      <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">40,000 人</span></div>
+      <div class="stat-row"><span class="sk">注册用户</span><span class="sv">264 人</span></div>
+      <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">0.66%</span></div>
+      <div class="stat-row"><span class="sk">下单用户</span><span class="sv">58 人</span></div>
+      <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥746</span></div>
+      <div class="stat-row"><span class="sk">日均注册</span><span class="sv">132 人 / 天 <span class="up">↑ 3.4×</span></span></div>
+      <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥373 / 天 <span class="up">↑ 4.3×</span></span></div>
+    </div>
+  </div>
+
+  <!-- 趋势图 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="chart-header">
+      <span class="chart-title">每日注册 & 下单趋势</span>
+      <div class="legend">
+        <div class="li"><div class="ld" style="background:rgba(0,113,227,.4)"></div>注册用户</div>
+        <div class="li"><div class="ld" style="background:#30a86d"></div>下单用户</div>
+        <span class="chart-note" style="margin-left:4px">· 点击柱子看当日详情</span>
+      </div>
+    </div>
+    <div style="position:relative;height:230px"><canvas id="trendChart" role="img" aria-label="每日注册与下单用户趋势图"></canvas></div>
+    <div class="day-detail" id="dayDetail">
+      <div class="dd-title" id="ddTitle">—</div>
+      <div class="dd-grid">
+        <div class="dd-item"><div class="dd-label">注册用户</div><div class="dd-val" id="dd-reg">—</div></div>
+        <div class="dd-item"><div class="dd-label">下单用户</div><div class="dd-val" id="dd-ord">—</div></div>
+        <div class="dd-item"><div class="dd-label">打印流水</div><div class="dd-val" id="dd-amt">—</div></div>
+        <div class="dd-item"><div class="dd-label">注册转化率</div><div class="dd-val" id="dd-cvr">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="chart-header">
+        <span class="chart-title">每日打印流水（元）</span>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:rgba(0,113,227,.4)"></div>灰度期</div>
+          <div class="li"><div class="ld" style="background:#30a86d"></div>推广期</div>
+        </div>
+      </div>
+      <div style="position:relative;height:190px"><canvas id="revenueChart" role="img" aria-label="每日打印流水"></canvas></div>
+    </div>
+
+    <!-- 推广覆盖漏斗（动态） -->
+    <div class="card macro-funnel">
+      <div class="chart-header"><span class="chart-title">推广覆盖转化漏斗</span><span class="chart-note" id="funnelNote">全部阶段</span></div>
+      <div id="macroFunnel"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== FUNNEL TAB ===== -->
+<div class="panel" id="panel-funnel">
+
+  <div class="data-note">
+    📊 行为数据来源：小程序用户数据报表（2026 / 5 / 13 — 5 / 22，共 10 天）。时间筛选不影响此页数据。
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">进入小程序总人次</div>
+      <div class="kpi-val blue">2,863</div>
+      <div class="kpi-hint">10 天合计</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">完成支付人数</div>
+      <div class="kpi-val">111</div>
+      <div class="kpi-hint">占进入人数 3.9%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">注册→支付转化</div>
+      <div class="kpi-val green">16.8%</div>
+      <div class="kpi-hint">659 注册 → 111 人完成支付</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">上传→结算转化</div>
+      <div class="kpi-val orange">60.8%</div>
+      <div class="kpi-hint">268 上传 → 163 点击结算</div>
+    </div>
+  </div>
+
+  <!-- 行为漏斗 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="chart-header">
+      <span class="chart-title">小程序内行为漏斗（5/13 — 5/22 合计）</span>
+      <span class="chart-note">每步转化率基于前一步</span>
+    </div>
+    <div id="bfChart" style="padding:4px 0"></div>
+  </div>
+
+  <!-- 每日行为趋势 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="chart-header">
+      <span class="chart-title">每日关键行为趋势</span>
+      <div class="legend">
+        <div class="li"><div class="ld" style="background:#0071e3"></div>进入小程序</div>
+        <div class="li"><div class="ld" style="background:#5856d6"></div>点击打印</div>
+        <div class="li"><div class="ld" style="background:#f57c00"></div>完成上传</div>
+        <div class="li"><div class="ld" style="background:#30a86d"></div>完成支付</div>
+        <span class="chart-note" style="margin-left:4px">· 点击柱子看当日明细</span>
+      </div>
+    </div>
+    <div style="position:relative;height:240px"><canvas id="behaviorChart" role="img" aria-label="每日小程序行为趋势折线图"></canvas></div>
+    <div class="day-detail" id="bfDetail">
+      <div class="dd-title" id="bfDetailTitle">—</div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+        <div class="dd-item"><div class="dd-label">注册新用户</div><div class="dd-val" id="bf-reg">—</div></div>
+        <div class="dd-item"><div class="dd-label">进入小程序</div><div class="dd-val" id="bf-enter">—</div></div>
+        <div class="dd-item"><div class="dd-label">点击打印</div><div class="dd-val" id="bf-click">—</div></div>
+        <div class="dd-item"><div class="dd-label">完成上传</div><div class="dd-val" id="bf-upload">—</div></div>
+        <div class="dd-item"><div class="dd-label">点击结算</div><div class="dd-val" id="bf-checkout">—</div></div>
+        <div class="dd-item"><div class="dd-label">完成支付</div><div class="dd-val" id="bf-pay">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 每日转化率 -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="chart-header">
+      <span class="chart-title">每日进入→支付转化率（%）</span>
+    </div>
+    <div style="position:relative;height:160px"><canvas id="cvrChart" role="img" aria-label="每日进入支付转化率折线图"></canvas></div>
+  </div>
+
+</div>
+
+<!-- ===== REPURCHASE ===== -->
+<div class="panel" id="panel-repurchase">
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">复购率</div>
+      <div class="kpi-val blue">14.5%</div>
+      <div class="kpi-hint">行业参考值约 50%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">复购用户</div>
+      <div class="kpi-val">20 人</div>
+      <div class="kpi-hint">其中 3 人下单 3 次</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">复购用户客单价</div>
+      <div class="kpi-val green">¥30.0</div>
+      <div class="kpi-hint">首单用户仅 ¥12.2</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">复购消费倍数</div>
+      <div class="kpi-val">2.5×</div>
+      <div class="kpi-hint">相对首单用户</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="chart-header">
+      <span class="chart-title">每日首单 vs 复购用户（5/8 — 5/22）</span>
+      <div class="legend">
+        <div class="li"><div class="ld" style="background:#0071e3"></div>首单用户</div>
+        <div class="li"><div class="ld" style="background:#ff6b35"></div>复购用户</div>
+        <span class="chart-note" style="margin-left:4px">· 点击柱子看当日明细</span>
+      </div>
+    </div>
+    <div style="position:relative;height:220px"><canvas id="rpDailyChart" role="img" aria-label="每日首单与复购堆叠柱状图"></canvas></div>
+    <div class="day-detail" id="rpDetail">
+      <div class="dd-title" id="rpDetailTitle">—</div>
+      <div class="dd-grid">
+        <div class="dd-item"><div class="dd-label">首单用户</div><div class="dd-val" id="rp-first">—</div></div>
+        <div class="dd-item"><div class="dd-label">复购用户</div><div class="dd-val" id="rp-repeat">—</div></div>
+        <div class="dd-item"><div class="dd-label">总订单</div><div class="dd-val" id="rp-total">—</div></div>
+        <div class="dd-item"><div class="dd-label">当日流水</div><div class="dd-val" id="rp-amt">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="chart-header"><span class="chart-title">首单 vs 复购 · 客单价对比</span></div>
+      <div style="position:relative;height:180px"><canvas id="arpcChart" role="img" aria-label="客单价对比图"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="chart-header"><span class="chart-title">用户下单次数分布</span></div>
+      <div style="position:relative;height:180px"><canvas id="freqChart" role="img" aria-label="下单次数分布饼图"></canvas></div>
+    </div>
+  </div>
+
+  <div class="data-note">
+    复购数据来源：订单管理文件（2026/5/8 — 5/22，161 笔已支付订单，138 位用户）。5/8 前注册的用户若在此后首次下单，在本数据中计为"首单"，实际复购率可能略高于 14.5%。行业参考：小猴云印成熟期复购率约 50%，年均产值约 ¥200 / 用户。
+  </div>
+
+</div>
+
+<div class="footer">超星云印 · 数据看板 · 每日手动更新</div>
+
+<script>
+/* ── 数据 ── */
+const TREND = [
+  {d:'2026-04-20',l:'4/20',reg:2,  ord:0,  amt:0},
+  {d:'2026-04-21',l:'4/21',reg:1,  ord:0,  amt:0},
+  {d:'2026-04-22',l:'4/22',reg:43, ord:4,  amt:39.56, push:true},
+  {d:'2026-04-23',l:'4/23',reg:126,ord:7,  amt:80.8,  push:true},
+  {d:'2026-04-24',l:'4/24',reg:86, ord:16, amt:192.58,push:true},
+  {d:'2026-04-25',l:'4/25',reg:33, ord:4,  amt:84.02},
+  {d:'2026-04-26',l:'4/26',reg:7,  ord:2,  amt:15.84},
+  {d:'2026-04-27',l:'4/27',reg:80, ord:12, amt:145.98,push:true},
+  {d:'2026-04-28',l:'4/28',reg:76, ord:12, amt:184.84,push:true},
+  {d:'2026-04-29',l:'4/29',reg:37, ord:7,  amt:96.6,  push:true},
+  {d:'2026-04-30',l:'4/30',reg:35, ord:12, amt:108.69,push:true},
+  {d:'2026-05-01',l:'5/1', reg:3,  ord:1,  amt:4.57},
+  {d:'2026-05-02',l:'5/2', reg:23, ord:3,  amt:27.26, push:true},
+  {d:'2026-05-03',l:'5/3', reg:9,  ord:4,  amt:36.9},
+  {d:'2026-05-04',l:'5/4', reg:5,  ord:1,  amt:6.22},
+  {d:'2026-05-05',l:'5/5', reg:7,  ord:3,  amt:80.77},
+  {d:'2026-05-06',l:'5/6', reg:61, ord:12, amt:125.82,push:true},
+  {d:'2026-05-07',l:'5/7', reg:40, ord:15, amt:151.5, push:true},
+  {d:'2026-05-08',l:'5/8', reg:46, ord:16, amt:210.53},
+  {d:'2026-05-09',l:'5/9', reg:13, ord:11, amt:162.34},
+  {d:'2026-05-10',l:'5/10',reg:7,  ord:3,  amt:84.49},
+  {d:'2026-05-11',l:'5/11',reg:26, ord:6,  amt:111},
+  {d:'2026-05-12',l:'5/12',reg:27, ord:7,  amt:57.64},
+  {d:'2026-05-13',l:'5/13',reg:21, ord:4,  amt:71.97},
+  {d:'2026-05-14',l:'5/14',reg:18, ord:4,  amt:55.56},
+  {d:'2026-05-15',l:'5/15',reg:6,  ord:8,  amt:109.01},
+  {d:'2026-05-17',l:'5/17',reg:1,  ord:1,  amt:6.2},
+  {d:'2026-05-18',l:'5/18',reg:34, ord:9,  amt:103.05},
+  {d:'2026-05-19',l:'5/19',reg:124,ord:10, amt:120.43},
+  {d:'2026-05-20',l:'5/20',reg:191,ord:16, amt:204.54},
+  {d:'2026-05-21',l:'5/21',reg:142,ord:32, amt:395.27,launch:true},
+  {d:'2026-05-22',l:'5/22',reg:122,ord:26, amt:351,   launch:true},
+];
+
+const BEHAVIOR = [
+  {d:'5/13',reg:21, enter:77,  click:24, upload:13,checkout:9,  pay:5},
+  {d:'5/14',reg:18, enter:85,  click:24, upload:10,checkout:6,  pay:4},
+  {d:'5/15',reg:6,  enter:34,  click:18, upload:13,checkout:11, pay:8},
+  {d:'5/16',reg:0,  enter:14,  click:3,  upload:3, checkout:0,  pay:0},
+  {d:'5/17',reg:1,  enter:10,  click:3,  upload:2, checkout:1,  pay:1},
+  {d:'5/18',reg:34, enter:109, click:41, upload:21,checkout:14, pay:9},
+  {d:'5/19',reg:124,enter:726, click:28, upload:12,checkout:21, pay:10},
+  {d:'5/20',reg:191,enter:902, click:153,upload:57,checkout:26, pay:16},
+  {d:'5/21',reg:142,enter:480, click:140,upload:76,checkout:37, pay:32},
+  {d:'5/22',reg:122,enter:426, click:134,upload:61,checkout:38, pay:26},
+];
+
+const RP_DAILY = [
+  {d:'5/8', first:16,repeat:0, total:16,amt:210.53},
+  {d:'5/9', first:10,repeat:1, total:11,amt:162.34},
+  {d:'5/10',first:3, repeat:0, total:3, amt:84.49},
+  {d:'5/11',first:6, repeat:0, total:6, amt:111},
+  {d:'5/12',first:5, repeat:2, total:7, amt:57.64},
+  {d:'5/13',first:3, repeat:1, total:4, amt:71.97},
+  {d:'5/14',first:4, repeat:0, total:4, amt:55.56},
+  {d:'5/15',first:5, repeat:3, total:8, amt:109.01},
+  {d:'5/17',first:1, repeat:0, total:1, amt:6.2},
+  {d:'5/18',first:9, repeat:0, total:9, amt:103.05},
+  {d:'5/19',first:8, repeat:3, total:11,amt:120.43},
+  {d:'5/20',first:14,repeat:2, total:16,amt:204.54},
+  {d:'5/21',first:31,repeat:4, total:35,amt:395.27},
+  {d:'5/22',first:23,repeat:7, total:30,amt:351},
+];
+
+/* 推广覆盖配置 */
+const COVERAGE = {all:{push:52000,reg:1452,ord:268},gray:{push:12000,reg:1188,ord:210},launch:{push:40000,reg:264,ord:58}};
+
+/* ── helpers ── */
+const $=id=>document.getElementById(id);
+const sum=(arr,k)=>arr.reduce((a,b)=>a+(b[k]||0),0);
+const fmt=n=>Number(n).toLocaleString('zh-CN');
+const pct=(a,b)=>b>0?(a/b*100).toFixed(1)+'%':'—';
+const gridC='rgba(0,0,0,.05)', tickC='#86868b';
+const ttBase={backgroundColor:'rgba(255,255,255,.97)',titleColor:'#1d1d1f',bodyColor:'#86868b',borderColor:'rgba(0,0,0,.08)',borderWidth:1,padding:10,cornerRadius:8};
+
+let currentRange='all';
+let trendInst=null, revInst=null;
+
+/* ── filter ── */
+function getFiltered(range){
+  if(range==='all')    return TREND;
+  if(range==='gray')   return TREND.filter(r=>!r.launch);
+  if(range==='launch') return TREND.filter(r=>r.launch);
+  if(range==='7d')     return TREND.slice(-7);
+  if(range==='14d')    return TREND.slice(-14);
+  if(range==='custom'){
+    const f=$('dateFrom').value, t=$('dateTo').value;
+    return TREND.filter(r=>r.d>=f&&r.d<=t);
+  }
+  return TREND;
+}
+
+/* ── KPI ── */
+function updateKPI(data){
+  const reg=sum(data,'reg'),ord=sum(data,'ord'),amt=sum(data,'amt'),days=data.length;
+  $('kv-reg').textContent=fmt(reg);
+  $('kh-reg').textContent=`${days} 天 · 日均 ${(reg/days).toFixed(0)} 人`;
+  $('kv-amt').textContent='¥'+fmt(Math.round(amt));
+  $('kh-amt').textContent=`日均 ¥${(amt/days).toFixed(0)}`;
+  $('kv-profit').textContent='¥'+fmt(Math.round(amt*.15));
+  $('kv-cvr').textContent=pct(ord,reg);
+  $('kh-cvr').textContent=`下单 ${ord} / 注册 ${reg}`;
+}
+
+/* ── macro funnel ── */
+function buildMacroFunnel(range){
+  const c=COVERAGE[range]||null;
+  const el=$('macroFunnel');
+  const note=$('funnelNote');
+
+  if(!c){
+    // no coverage data for 7d/14d/custom
+    const data=getFiltered(range);
+    const reg=sum(data,'reg'), ord=sum(data,'ord');
+    note.textContent='所选时段';
+    el.innerHTML=`
+      <div class="funnel-item">
+        <div class="funnel-meta"><span>注册用户</span><span>${fmt(reg)} 人</span></div>
+        <div class="funnel-track"><div class="funnel-fill f-indigo" style="width:100%">100%</div></div>
+      </div>
+      <div class="funnel-item">
+        <div class="funnel-meta"><span>下单用户</span><span>${fmt(ord)} 人</span></div>
+        <div class="funnel-track"><div class="funnel-fill f-teal" style="width:${Math.max(reg>0?ord/reg*100:0,8)}%">${pct(ord,reg)}</div></div>
+      </div>
+      <p class="funnel-note">推广覆盖数据仅适用于全部 / 灰度期 / 正式推广期视图</p>`;
+    return;
+  }
+
+  const {push,reg,ord}=c;
+  const labels={all:'全部阶段',gray:'灰度测试期',launch:'正式推广期'};
+  note.textContent=labels[range]||'';
+  const regPct=(reg/push*100).toFixed(2);
+  const ordPct=(ord/push*100).toFixed(2);
+  const regW=Math.max(reg/push*100*4,10); // visual scale ×4 for readability
+  const ordW=Math.max(ord/push*100*10,6);
+
+  el.innerHTML=`
+    <div class="funnel-item">
+      <div class="funnel-meta"><span>推广覆盖</span><span>${fmt(push)} 人</span></div>
+      <div class="funnel-track"><div class="funnel-fill f-blue" style="width:100%">100%</div></div>
+    </div>
+    <div class="funnel-item">
+      <div class="funnel-meta"><span>注册用户</span><span>${fmt(reg)} 人</span></div>
+      <div class="funnel-track"><div class="funnel-fill f-indigo" style="width:${Math.min(regW,100)}%">${regPct}%</div></div>
+    </div>
+    <div class="funnel-item">
+      <div class="funnel-meta"><span>下单用户</span><span>${fmt(ord)} 人</span></div>
+      <div class="funnel-track"><div class="funnel-fill f-teal" style="width:${Math.min(ordW,60)}%">${ordPct}%</div></div>
+    </div>
+    <p class="funnel-note">注册绑定率 ${(reg/push*100).toFixed(1)}% · 下单转化率（注册→下单）${pct(ord,reg)}</p>`;
+}
+
+/* ── launch overlay plugins ── */
+function launchPlugins(data){
+  const idx=data.findIndex(r=>r.launch);
+  return [{
+    id:'lb',
+    beforeDraw(chart){
+      if(idx<0)return;
+      const{ctx,chartArea:{top,bottom},scales:{x}}=chart;
+      ctx.save();ctx.fillStyle='rgba(0,113,227,.04)';
+      const x0=x.getPixelForValue(idx),x1=chart.chartArea.right;
+      ctx.fillRect(x0,top,x1-x0,bottom-top);ctx.restore();
+    }
+  },{
+    id:'ll',
+    afterDraw(chart){
+      if(idx<0)return;
+      const{ctx,chartArea:{top,bottom},scales:{x}}=chart;
+      const xp=x.getPixelForValue(idx);
+      ctx.save();ctx.strokeStyle='rgba(0,113,227,.25)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();ctx.restore();
+    }
+  }];
+}
+
+/* ── trend chart ── */
+function buildTrend(data){
+  if(trendInst)trendInst.destroy();
+  trendInst=new Chart($('trendChart'),{
+    type:'bar',
+    plugins:launchPlugins(data),
+    data:{
+      labels:data.map(r=>r.l),
+      datasets:[
+        {label:'注册用户',data:data.map(r=>r.reg),backgroundColor:data.map(r=>r.launch?'rgba(0,113,227,.75)':'rgba(0,113,227,.35)'),borderRadius:3,order:2,yAxisID:'y'},
+        {label:'下单用户',data:data.map(r=>r.ord),type:'line',borderColor:'#30a86d',backgroundColor:'transparent',pointBackgroundColor:'#30a86d',pointRadius:3,borderWidth:1.5,tension:.35,order:1,yAxisID:'y2'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      onClick(e,els){
+        if(!els.length)return;
+        const r=data[els[0].index];
+        $('ddTitle').textContent=r.l+' 单日详情';
+        $('dd-reg').textContent=r.reg+' 人';
+        $('dd-ord').textContent=r.ord+' 人';
+        $('dd-amt').textContent='¥'+r.amt.toFixed(2);
+        $('dd-cvr').textContent=r.reg>0?(r.ord/r.reg*100).toFixed(1)+'%':'—';
+        $('dayDetail').classList.add('show');
+      },
+      plugins:{legend:{display:false},tooltip:{...ttBase}},
+      scales:{
+        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:16}},
+        y:{position:'left',grid:{color:gridC},ticks:{color:tickC,font:{size:10}},title:{display:true,text:'注册',color:tickC,font:{size:10}}},
+        y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#30a86d',font:{size:10}},title:{display:true,text:'下单',color:'#30a86d',font:{size:10}}}
+      }
+    }
+  });
+}
+
+/* ── revenue chart ── */
+function buildRevenue(data){
+  if(revInst)revInst.destroy();
+  revInst=new Chart($('revenueChart'),{
+    type:'bar',
+    data:{labels:data.map(r=>r.l),datasets:[{label:'流水',data:data.map(r=>r.amt),backgroundColor:data.map(r=>r.launch?'rgba(48,168,109,.65)':'rgba(0,113,227,.35)'),borderRadius:3}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...ttBase}},
+      scales:{
+        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
+        y:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},callback:v=>'¥'+v}}
+      }
+    }
+  });
+}
+
+/* ── behavior funnel bars ── */
+function buildBehaviorFunnel(){
+  const T=2863,R=659,C=568,U=268,CH=163,P=111;
+  const steps=[
+    {name:'进入小程序', val:T, pct:'100%',                          color:'#0071e3'},
+    {name:'注册绑定',   val:R, pct:(R/T*100).toFixed(1)+'%',        color:'#3b82f6'},
+    {name:'点击开始打印',val:C, pct:(C/R*100).toFixed(1)+'%',        color:'#5856d6'},
+    {name:'完成文件上传',val:U, pct:(U/C*100).toFixed(1)+'%',        color:'#f57c00'},
+    {name:'点击结算',   val:CH,pct:(CH/U*100).toFixed(1)+'%',        color:'#ff6b35'},
+    {name:'完成支付',   val:P, pct:(P/CH*100).toFixed(1)+'%',        color:'#30a86d'},
+  ];
+  const maxV=T;
+  const el=$('bfChart');
+  el.innerHTML=steps.map((s,i)=>`
+    <div class="bf-step">
+      <div class="bf-name">${s.name}</div>
+      <div class="bf-track">
+        <div class="bf-fill" style="width:${Math.max(s.val/maxV*100,6)}%;background:${s.color}">
+          <span>${fmt(s.val)} 人</span>
+          <span style="margin-right:8px">${s.pct}</span>
+        </div>
+      </div>
+    </div>
+    ${i<steps.length-1?`<div class="bf-arrow">↓ 流失 ${fmt(steps[i].val-steps[i+1].val)} 人</div>`:''}
+  `).join('');
+}
+
+/* ── behavior trend ── */
+function buildBehaviorTrend(){
+  new Chart($('behaviorChart'),{
+    type:'line',
+    data:{
+      labels:BEHAVIOR.map(r=>r.d),
+      datasets:[
+        {label:'进入小程序',data:BEHAVIOR.map(r=>r.enter),borderColor:'#0071e3',backgroundColor:'rgba(0,113,227,.08)',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+        {label:'点击打印',  data:BEHAVIOR.map(r=>r.click),borderColor:'#5856d6',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+        {label:'完成上传',  data:BEHAVIOR.map(r=>r.upload),borderColor:'#f57c00',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+        {label:'完成支付',  data:BEHAVIOR.map(r=>r.pay),  borderColor:'#30a86d',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      onClick(e,els){
+        if(!els.length)return;
+        const r=BEHAVIOR[els[0].index];
+        $('bfDetailTitle').textContent=r.d+' 单日明细';
+        $('bf-reg').textContent=r.reg;$('bf-enter').textContent=r.enter;
+        $('bf-click').textContent=r.click;$('bf-upload').textContent=r.upload;
+        $('bf-checkout').textContent=r.checkout;$('bf-pay').textContent=r.pay;
+        $('bfDetail').classList.add('show');
+      },
+      plugins:{legend:{display:false},tooltip:{...ttBase}},
+      scales:{
+        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:11}}},
+        y:{grid:{color:gridC},ticks:{color:tickC,font:{size:10}}}
+      }
+    }
+  });
+}
+
+/* ── daily CVR chart ── */
+function buildCvrChart(){
+  const cvr=BEHAVIOR.map(r=>r.enter>0?+(r.pay/r.enter*100).toFixed(1):0);
+  new Chart($('cvrChart'),{
+    type:'bar',
+    data:{
+      labels:BEHAVIOR.map(r=>r.d),
+      datasets:[{label:'进入→支付(%)',data:cvr,backgroundColor:BEHAVIOR.map(r=>r.d>='5/21'?'rgba(48,168,109,.65)':'rgba(0,113,227,.4)'),borderRadius:3}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...ttBase,callbacks:{label:c=>` ${c.raw}%`}}},
+      scales:{
+        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:11}}},
+        y:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+/* ── repurchase charts ── */
+function buildRpCharts(){
+  let rpInst=null;
+  rpInst=new Chart($('rpDailyChart'),{
+    type:'bar',
+    data:{
+      labels:RP_DAILY.map(r=>r.d),
+      datasets:[
+        {label:'首单',data:RP_DAILY.map(r=>r.first),backgroundColor:'rgba(0,113,227,.55)',borderRadius:3,stack:'s'},
+        {label:'复购',data:RP_DAILY.map(r=>r.repeat),backgroundColor:'rgba(255,107,53,.7)',borderRadius:3,stack:'s'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      onClick(e,els){
+        if(!els.length)return;
+        const r=RP_DAILY[els[0].index];
+        $('rpDetailTitle').textContent=r.d+' 单日明细';
+        $('rp-first').textContent=r.first+' 人';$('rp-repeat').textContent=r.repeat+' 人';
+        $('rp-total').textContent=r.total+' 单';$('rp-amt').textContent='¥'+r.amt.toFixed(2);
+        $('rpDetail').classList.add('show');
+      },
+      plugins:{legend:{display:false},tooltip:{...ttBase}},
+      scales:{
+        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:11}}},
+        y:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},stepSize:5}}
+      }
+    }
+  });
+
+  new Chart($('arpcChart'),{
+    type:'bar',
+    data:{
+      labels:['首单用户','复购用户'],
+      datasets:[{label:'平均客单价',data:[12.23,30.02],backgroundColor:['rgba(0,113,227,.45)','rgba(255,107,53,.65)'],borderRadius:6,barThickness:48}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{...ttBase,callbacks:{label:c=>' ¥'+c.raw}}},
+      scales:{
+        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},callback:v=>'¥'+v},max:40},
+        y:{grid:{color:'transparent'},ticks:{color:'#1d1d1f',font:{size:12,weight:'500'}}}
+      }
+    }
+  });
+
+  new Chart($('freqChart'),{
+    type:'doughnut',
+    data:{
+      labels:['1 次（118 人）','2 次（17 人）','3 次（3 人）'],
+      datasets:[{data:[118,17,3],backgroundColor:['rgba(0,113,227,.65)','rgba(255,107,53,.65)','rgba(48,168,109,.65)'],borderWidth:0,hoverOffset:6}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{display:true,position:'bottom',labels:{color:tickC,font:{size:11},boxWidth:10,boxHeight:10,padding:12,usePointStyle:true}},tooltip:{...ttBase}}
+    }
+  });
+}
+
+/* ── range desc ── */
+function updateRangeDesc(data){
+  const from=data[0]?.l, to=data[data.length-1]?.l;
+  $('rangeDesc').textContent = data.length===1?from:`${from} — ${to}，共 ${data.length} 天`;
+}
+
+/* ── main refresh ── */
+function refresh(){
+  const data=getFiltered(currentRange);
+  updateKPI(data);
+  buildTrend(data);
+  buildRevenue(data);
+  buildMacroFunnel(currentRange);
+  updateRangeDesc(data);
+  $('dayDetail').classList.remove('show');
+}
+
+/* ── events ── */
+$('rangeSeg').addEventListener('click',e=>{
+  const btn=e.target.closest('.seg-btn');
+  if(!btn)return;
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentRange=btn.dataset.range;
+  refresh();
+});
+$('applyDate').addEventListener('click',()=>{ document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active')); currentRange='custom'; refresh(); });
+$('dateFrom').addEventListener('change',()=>{ currentRange='custom'; refresh(); });
+$('dateTo').addEventListener('change',()=>{ currentRange='custom'; refresh(); });
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── init ── */
+refresh();
+buildBehaviorFunnel();
+buildBehaviorTrend();
+buildCvrChart();
+buildRpCharts();
+</script>
+</body>
+</html>
