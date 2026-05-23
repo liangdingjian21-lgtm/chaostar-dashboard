@@ -117,6 +117,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
     <button class="seg-btn active" data-range="all">全部</button>
     <button class="seg-btn" data-range="gray">灰度测试期</button>
     <button class="seg-btn" data-range="launch">正式推广期</button>
+    <button class="seg-btn" data-range="yesterday">昨日</button>
     <button class="seg-btn" data-range="7d">近 7 天</button>
     <button class="seg-btn" data-range="14d">近 14 天</button>
   </div>
@@ -177,17 +178,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
       <div class="stat-row"><span class="sk">日均注册</span><span class="sv">38 人 / 天</span></div>
       <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥86 / 天</span></div>
     </div>
-    <div class="card highlight">
-      <span class="phase-badge live">深圳全量推广中</span>
-      <div class="phase-name">5 / 21 — 至今（2 天）</div>
-      <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">40,000 人</span></div>
-      <div class="stat-row"><span class="sk">注册用户</span><span class="sv">264 人</span></div>
-      <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">0.66%</span></div>
-      <div class="stat-row"><span class="sk">下单用户</span><span class="sv">58 人</span></div>
-      <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥746</span></div>
-      <div class="stat-row"><span class="sk">日均注册</span><span class="sv">132 人 / 天 <span class="up">↑ 3.4×</span></span></div>
-      <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥373 / 天 <span class="up">↑ 4.3×</span></span></div>
-    </div>
+    <div id="launchCard" class="card highlight"></div>
   </div>
 
   <!-- 趋势图 -->
@@ -372,10 +363,11 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 
 </div>
 
-<div class="footer">超星云印 · 数据看板 · 每日手动更新</div>
+<div class="footer">超星云印 · 数据看板 · <span id="footerDate">加载中…</span></div>
 
 <script>
 /* ── 数据 ── */
+// ===CHAOSTAR_DATA_START===
 const TREND = [
   {d:'2026-04-20',l:'4/20',reg:2,  ord:0,  amt:0},
   {d:'2026-04-21',l:'4/21',reg:1,  ord:0,  amt:0},
@@ -443,6 +435,8 @@ const RP_DAILY = [
 
 /* 推广覆盖配置 */
 const COVERAGE = {all:{push:52000,reg:1452,ord:268},gray:{push:12000,reg:1188,ord:210},launch:{push:40000,reg:264,ord:58}};
+const LAST_UPDATED = "2026-05-22";
+// ===CHAOSTAR_DATA_END===
 
 /* ── helpers ── */
 const $=id=>document.getElementById(id);
@@ -460,6 +454,11 @@ function getFiltered(range){
   if(range==='all')    return TREND;
   if(range==='gray')   return TREND.filter(r=>!r.launch);
   if(range==='launch') return TREND.filter(r=>r.launch);
+  if(range==='yesterday'){
+    const y=new Date(); y.setDate(y.getDate()-1);
+    const yd=y.toISOString().slice(0,10);
+    return TREND.filter(r=>r.d===yd);
+  }
   if(range==='7d')     return TREND.slice(-7);
   if(range==='14d')    return TREND.slice(-14);
   if(range==='custom'){
@@ -783,12 +782,52 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
   });
 });
 
+/* ── 启动期卡片（动态渲染）── */
+function buildLaunchCard(){
+  const grayData = TREND.filter(r=>!r.launch);
+  const launchData = TREND.filter(r=>r.launch);
+  const days = launchData.length || 1;
+  const reg = sum(launchData,'reg');
+  const ord = sum(launchData,'ord');
+  const amt = sum(launchData,'amt');
+  const grayDays = grayData.length || 31;
+  const grayReg = COVERAGE.gray.reg;
+  const grayAmt = sum(grayData,'amt');
+  const dailyReg = (reg/days).toFixed(0);
+  const dailyAmt = (amt/days).toFixed(0);
+  const grayDailyReg = (grayReg/grayDays).toFixed(0);
+  const grayDailyAmt = (grayAmt/grayDays).toFixed(0);
+  const regMult = grayDailyReg>0?(dailyReg/grayDailyReg).toFixed(1)+'×':'—';
+  const amtMult = grayDailyAmt>0?(dailyAmt/grayDailyAmt).toFixed(1)+'×':'—';
+  const bindRate = (reg/COVERAGE.launch.push*100).toFixed(2)+'%';
+  const launchD = launchData[0]?.l || '5/21';
+  const lastD = launchData[launchData.length-1]?.l || launchD;
+  document.getElementById('launchCard').innerHTML = `
+    <span class="phase-badge live">深圳全量推广中</span>
+    <div class="phase-name">${launchD} — 至今（${days} 天）</div>
+    <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">40,000 人</span></div>
+    <div class="stat-row"><span class="sk">注册用户</span><span class="sv">${fmt(reg)} 人</span></div>
+    <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">${bindRate}</span></div>
+    <div class="stat-row"><span class="sk">下单用户</span><span class="sv">${fmt(ord)} 人</span></div>
+    <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥${fmt(Math.round(amt))}</span></div>
+    <div class="stat-row"><span class="sk">日均注册</span><span class="sv">${dailyReg} 人 / 天 <span class="up">↑ ${regMult}</span></span></div>
+    <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥${dailyAmt} / 天 <span class="up">↑ ${amtMult}</span></span></div>`;
+}
+
+/* ── 更新时间显示 ── */
+function buildFooter(){
+  const el = document.getElementById('footerDate');
+  if(el) el.textContent = '最后更新：' + LAST_UPDATED;
+}
+
 /* ── init ── */
 refresh();
 buildBehaviorFunnel();
 buildBehaviorTrend();
 buildCvrChart();
 buildRpCharts();
+buildLaunchCard();
+buildFooter();
 </script>
 </body>
 </html>
