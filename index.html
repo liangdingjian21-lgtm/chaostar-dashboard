@@ -113,6 +113,13 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 
 <!-- Filter bar -->
 <div class="filter-bar">
+  <span class="filter-label">渠道</span>
+  <div class="seg" id="channelSeg">
+    <button class="seg-btn active" data-ch="all">全渠道</button>
+    <button class="seg-btn" data-ch="sz">深圳</button>
+    <button class="seg-btn" data-ch="gz">广州版英语</button>
+  </div>
+  <div class="vline"></div>
   <span class="filter-label">快捷筛选</span>
   <div class="seg" id="rangeSeg">
     <button class="seg-btn active" data-range="all">全部</button>
@@ -177,20 +184,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="card">
-      <span class="phase-badge">灰度测试期</span>
-      <div class="phase-name">4 / 20 — 5 / 20（31 天）</div>
-      <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">12,000 人</span></div>
-      <div class="stat-row"><span class="sk">注册用户</span><span class="sv">1,188 人</span></div>
-      <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">9.9%</span></div>
-      <div class="stat-row"><span class="sk">下单用户</span><span class="sv">210 人</span></div>
-      <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥2,679</span></div>
-      <div class="stat-row"><span class="sk">日均注册</span><span class="sv">38 人 / 天</span></div>
-      <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥86 / 天</span></div>
-    </div>
-    <div id="launchCard" class="card highlight"></div>
-  </div>
+  <div class="two-col" id="phaseCards"></div>
 
   <!-- 趋势图 -->
   <div class="card" style="margin-bottom:16px">
@@ -457,25 +451,34 @@ const gridC='rgba(0,0,0,.05)', tickC='#86868b';
 const ttBase={backgroundColor:'rgba(255,255,255,.97)',titleColor:'#1d1d1f',bodyColor:'#86868b',borderColor:'rgba(0,0,0,.08)',borderWidth:1,padding:10,cornerRadius:8};
 
 let currentRange='all';
+let currentChannel='all';
 let trendInst=null, revInst=null;
+
+/* ── active dataset by channel ── */
+function getDataset(){
+  if(currentChannel==='sz') return TREND_SZ;
+  if(currentChannel==='gz') return TREND_GZ;
+  return TREND;
+}
 
 /* ── filter ── */
 function getFiltered(range){
-  if(range==='all')    return TREND;
-  if(range==='gray')   return TREND.filter(r=>!r.launch);
-  if(range==='launch') return TREND.filter(r=>r.launch);
+  const DS=getDataset();
+  if(range==='all')    return DS;
+  if(range==='gray')   return DS.filter(r=>!r.launch&&!r.gz);
+  if(range==='launch') return DS.filter(r=>r.launch||r.gz);
   if(range==='yesterday'){
     const y=new Date(); y.setDate(y.getDate()-1);
     const yd=y.toISOString().slice(0,10);
-    return TREND.filter(r=>r.d===yd);
+    return DS.filter(r=>r.d===yd);
   }
-  if(range==='7d')     return TREND.slice(-7);
-  if(range==='14d')    return TREND.slice(-14);
+  if(range==='7d')     return DS.slice(-7);
+  if(range==='14d')    return DS.slice(-14);
   if(range==='custom'){
     const f=$('dateFrom').value, t=$('dateTo').value;
-    return TREND.filter(r=>r.d>=f&&r.d<=t);
+    return DS.filter(r=>r.d>=f&&r.d<=t);
   }
-  return TREND;
+  return DS;
 }
 
 /* ── KPI ── */
@@ -497,12 +500,30 @@ function updateKPI(data){
 
 /* ── macro funnel ── */
 function buildMacroFunnel(range){
-  const c=COVERAGE[range]||null;
   const el=$('macroFunnel');
   const note=$('funnelNote');
 
+  // GZ channel: no coverage data, show reg→order funnel only
+  if(currentChannel==='gz'){
+    const data=getFiltered(range);
+    const reg=sum(data,'reg'), ord=sum(data,'ord');
+    note.textContent='广州版英语渠道';
+    el.innerHTML=`
+      <div class="funnel-item">
+        <div class="funnel-meta"><span>注册用户</span><span>${fmt(reg)} 人</span></div>
+        <div class="funnel-track"><div class="funnel-fill f-indigo" style="width:100%">100%</div></div>
+      </div>
+      <div class="funnel-item">
+        <div class="funnel-meta"><span>下单用户</span><span>${fmt(ord)} 人</span></div>
+        <div class="funnel-track"><div class="funnel-fill f-teal" style="width:${Math.max(reg>0?ord/reg*100:0,8)}%">${pct(ord,reg)}</div></div>
+      </div>
+      <p class="funnel-note">广州渠道 5/25 上线 · 利润 50% 分成 · 推广覆盖数据暂无</p>`;
+    return;
+  }
+
+  const c=(currentChannel==='all'||currentChannel==='sz') ? COVERAGE[range]||null : null;
+
   if(!c){
-    // no coverage data for 7d/14d/custom
     const data=getFiltered(range);
     const reg=sum(data,'reg'), ord=sum(data,'ord');
     note.textContent='所选时段';
@@ -524,7 +545,7 @@ function buildMacroFunnel(range){
   note.textContent=labels[range]||'';
   const regPct=(reg/push*100).toFixed(2);
   const ordPct=(ord/push*100).toFixed(2);
-  const regW=Math.max(reg/push*100*4,10); // visual scale ×4 for readability
+  const regW=Math.max(reg/push*100*4,10);
   const ordW=Math.max(ord/push*100*10,6);
 
   el.innerHTML=`
@@ -797,15 +818,40 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
   });
 });
 
-/* ── 启动期卡片（动态渲染）── */
-function buildLaunchCard(){
-  const grayData = TREND.filter(r=>!r.launch);
-  const launchData = TREND.filter(r=>r.launch);
-  const days = launchData.length || 1;
+/* ── 阶段卡片（动态渲染，随渠道切换）── */
+function buildPhaseCards(){
+  const el=$('phaseCards');
+  if(currentChannel==='gz'){
+    // 广州渠道：只有推广期，无灰度期
+    const gzReg=sum(TREND_GZ,'reg'), gzOrd=sum(TREND_GZ,'ord'), gzAmt=sum(TREND_GZ,'amt');
+    const days=TREND_GZ.length||1;
+    el.innerHTML=`
+      <div class="card" style="grid-column:1/3">
+        <span class="phase-badge live">广州版英语渠道推广中</span>
+        <div class="phase-name">5 / 25 — 至今（${days} 天）</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
+          <div class="stat-row"><span class="sk">注册用户</span><span class="sv">${fmt(gzReg)} 人</span></div>
+          <div class="stat-row"><span class="sk">日均注册</span><span class="sv">${(gzReg/days).toFixed(0)} 人 / 天</span></div>
+          <div class="stat-row"><span class="sk">下单用户</span><span class="sv">${fmt(gzOrd)} 人</span></div>
+          <div class="stat-row"><span class="sk">注册→下单转化</span><span class="sv">${pct(gzOrd,gzReg)}</span></div>
+          <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥${fmt(Math.round(gzAmt))}</span></div>
+          <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥${(gzAmt/days).toFixed(0)} / 天</span></div>
+          <div class="stat-row"><span class="sk">利润归属</span><span class="sv">50% 分成给渠道方</span></div>
+          <div class="stat-row"><span class="sk">流量产权</span><span class="sv">归渠道方</span></div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // 深圳 / 全渠道：灰度期 + 推广期两栏
+  const DS = currentChannel==='sz' ? TREND_SZ : TREND;
+  const grayData = DS.filter(r=>!r.launch&&!r.gz);
+  const launchData = DS.filter(r=>r.launch);
+  const days = launchData.length||1;
   const reg = sum(launchData,'reg');
   const ord = sum(launchData,'ord');
   const amt = sum(launchData,'amt');
-  const grayDays = grayData.length || 31;
+  const grayDays = grayData.length||31;
   const grayReg = COVERAGE.gray.reg;
   const grayAmt = sum(grayData,'amt');
   const dailyReg = (reg/days).toFixed(0);
@@ -815,18 +861,31 @@ function buildLaunchCard(){
   const regMult = grayDailyReg>0?(dailyReg/grayDailyReg).toFixed(1)+'×':'—';
   const amtMult = grayDailyAmt>0?(dailyAmt/grayDailyAmt).toFixed(1)+'×':'—';
   const bindRate = (reg/COVERAGE.launch.push*100).toFixed(2)+'%';
-  const launchD = launchData[0]?.l || '5/21';
-  const lastD = launchData[launchData.length-1]?.l || launchD;
-  document.getElementById('launchCard').innerHTML = `
-    <span class="phase-badge live">深圳全量推广中</span>
-    <div class="phase-name">${launchD} — 至今（${days} 天）</div>
-    <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">40,000 人</span></div>
-    <div class="stat-row"><span class="sk">注册用户</span><span class="sv">${fmt(reg)} 人</span></div>
-    <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">${bindRate}</span></div>
-    <div class="stat-row"><span class="sk">下单用户</span><span class="sv">${fmt(ord)} 人</span></div>
-    <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥${fmt(Math.round(amt))}</span></div>
-    <div class="stat-row"><span class="sk">日均注册</span><span class="sv">${dailyReg} 人 / 天 <span class="up">↑ ${regMult}</span></span></div>
-    <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥${dailyAmt} / 天 <span class="up">↑ ${amtMult}</span></span></div>`;
+  const launchD = launchData[0]?.l||'5/21';
+
+  el.innerHTML=`
+    <div class="card">
+      <span class="phase-badge">灰度测试期</span>
+      <div class="phase-name">4 / 20 — 5 / 20（31 天）</div>
+      <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">12,000 人</span></div>
+      <div class="stat-row"><span class="sk">注册用户</span><span class="sv">1,188 人</span></div>
+      <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">9.9%</span></div>
+      <div class="stat-row"><span class="sk">下单用户</span><span class="sv">210 人</span></div>
+      <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥2,679</span></div>
+      <div class="stat-row"><span class="sk">日均注册</span><span class="sv">38 人 / 天</span></div>
+      <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥86 / 天</span></div>
+    </div>
+    <div class="card highlight">
+      <span class="phase-badge live">深圳全量推广中</span>
+      <div class="phase-name">${launchD} — 至今（${days} 天）</div>
+      <div class="stat-row"><span class="sk">推广覆盖</span><span class="sv">40,000 人</span></div>
+      <div class="stat-row"><span class="sk">注册用户</span><span class="sv">${fmt(reg)} 人</span></div>
+      <div class="stat-row"><span class="sk">注册绑定率</span><span class="sv">${bindRate}</span></div>
+      <div class="stat-row"><span class="sk">下单用户</span><span class="sv">${fmt(ord)} 人</span></div>
+      <div class="stat-row"><span class="sk">打印流水</span><span class="sv">¥${fmt(Math.round(amt))}</span></div>
+      <div class="stat-row"><span class="sk">日均注册</span><span class="sv">${dailyReg} 人 / 天 <span class="up">↑ ${regMult}</span></span></div>
+      <div class="stat-row"><span class="sk">日均流水</span><span class="sv">¥${dailyAmt} / 天 <span class="up">↑ ${amtMult}</span></span></div>
+    </div>`;
 }
 
 /* ── 更新时间显示 ── */
