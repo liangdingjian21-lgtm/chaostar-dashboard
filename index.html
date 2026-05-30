@@ -426,22 +426,23 @@ const COVERAGE = {all:{push:52000,reg:2520,ord:7},gray:{push:12000,reg:734,ord:0
 const LAST_UPDATED = "2026-05-30";
 // ===CHAOSTAR_DATA_END===
 
-/* ── 复购历史数据（自动部署区间外，勿删）── */
+/* ── 复购历史数据（精确用户维度，自动部署区间外，勿删）── */
+/* 数据来源：订单管理原始文件用户去重统计。first=首次下单新用户数，repeat=有复购行为的用户数（用户维度，非订单数）*/
 const RP_HISTORY = [
-  {d:'5/15',first:8, repeat:0, total:8, amt:109.01},
+  {d:'5/15',first:5, repeat:3, total:8, amt:109.01},
   {d:'5/17',first:1, repeat:0, total:1, amt:6.2},
-  {d:'5/18',first:9, repeat:0, total:9, amt:103.05},
+  {d:'5/18',first:8, repeat:1, total:9, amt:103.05},
   {d:'5/19',first:9, repeat:2, total:11,amt:120.43},
-  {d:'5/20',first:14,repeat:2, total:16,amt:204.54},
-  {d:'5/21',first:32,repeat:3, total:35,amt:395.27},
-  {d:'5/22',first:23,repeat:7, total:30,amt:350.17},
-  {d:'5/23',first:16,repeat:5, total:21,amt:256.73},
-  {d:'5/24',first:3, repeat:2, total:5, amt:41.2},
-  {d:'5/25',first:36,repeat:4, total:40,amt:442.03},
-  {d:'5/26',first:30,repeat:5, total:35,amt:373.16},
-  {d:'5/27',first:44,repeat:8, total:52,amt:491.09},
-  {d:'5/28',first:35,repeat:11,total:46,amt:773.44},
-  {d:'5/29',first:26,repeat:9, total:35,amt:545.24},
+  {d:'5/20',first:12,repeat:4, total:16,amt:204.54},
+  {d:'5/21',first:31,repeat:4, total:35,amt:395.27},
+  {d:'5/22',first:19,repeat:9, total:30,amt:350.17},
+  {d:'5/23',first:16,repeat:3, total:21,amt:256.73},
+  {d:'5/24',first:3, repeat:1, total:5, amt:41.2},
+  {d:'5/25',first:31,repeat:8, total:40,amt:442.03},
+  {d:'5/26',first:29,repeat:5, total:35,amt:373.16},
+  {d:'5/27',first:45,repeat:7, total:52,amt:491.09},
+  {d:'5/28',first:43,repeat:2, total:46,amt:773.44},
+  {d:'5/29',first:34,repeat:1, total:35,amt:545.24},
 ];
 // 合并历史 + 脚本生成的当日数据，以日期去重（优先保留最新）
 (function mergeRP(){
@@ -824,10 +825,12 @@ function buildRpCharts(rpData){
   const totalFirst=sum(rpData,'first'), totalRepeat=sum(rpData,'repeat'), totalAll=totalFirst+totalRepeat;
   const rpAmt=sum(rpData,'amt');
   const days=rpData.length;
-  // 复购率 = Σ复购订单数 ÷ Σ首单用户数（以首单用户数作为总用户基数的近似）
-  $('rp-kv-rate').textContent  = totalFirst>0?(totalRepeat/totalFirst*100).toFixed(1)+'%':'—';
-  $('rp-kv-users').textContent = totalFirst>0?totalRepeat+' 人':'—';
-  $('rp-kh-users').textContent = totalFirst>0?`复购订单数 / ${totalFirst} 首单用户`:'';
+  // 复购率 = 产生过复购行为的用户数 ÷ 总下单用户数
+  // repeat字段已是用户维度（非订单数），first=首次下单新用户数
+  const totalOrderUsers = totalFirst + totalRepeat;  // 总下单用户数
+  $('rp-kv-rate').textContent  = totalOrderUsers>0?(totalRepeat/totalOrderUsers*100).toFixed(1)+'%':'—';
+  $('rp-kv-users').textContent = totalOrderUsers>0?totalRepeat+' 人':'—';
+  $('rp-kh-users').textContent = totalOrderUsers>0?`${totalRepeat} 复购用户 / ${totalOrderUsers} 总下单用户`:'';
   $('rp-kv-arpu').textContent  = totalAll>0?'¥'+(rpAmt/totalAll).toFixed(1):'—';
   $('rp-kh-arpu').textContent  = totalAll>0?`总 ${totalAll} 笔订单`:'';
   $('rp-kv-amt').textContent   = totalAll>0?'¥'+fmt(Math.round(rpAmt)):'—';
