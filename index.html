@@ -510,7 +510,12 @@ function filterByRange(arr, range){
   return arr;
 }
 function getFilteredBehavior(){ return filterByRange(BEHAVIOR, currentRange); }
-function getFilteredRP(){       return filterByRange(RP_DAILY,  currentRange); }
+function getFilteredRP(){
+  // 渠道筛选：广州渠道5/25起，深圳/全渠道不限
+  let arr = RP_DAILY;
+  if(currentChannel==='gz') arr = arr.filter(r=>toFullDate(r.fd||r.d)>='2026-05-25');
+  return filterByRange(arr, currentRange);
+}
 
 /* ── active dataset by channel ── */
 function getDataset(){
@@ -819,9 +824,10 @@ function buildRpCharts(rpData){
   const totalFirst=sum(rpData,'first'), totalRepeat=sum(rpData,'repeat'), totalAll=totalFirst+totalRepeat;
   const rpAmt=sum(rpData,'amt');
   const days=rpData.length;
-  $('rp-kv-rate').textContent  = totalAll>0?(totalRepeat/totalAll*100).toFixed(1)+'%':'—';
-  $('rp-kv-users').textContent = totalAll>0?totalRepeat+' 人':'—';
-  $('rp-kh-users').textContent = totalAll>0?`共 ${totalFirst} 首单 + ${totalRepeat} 复购`:'';
+  // 复购率 = Σ复购订单数 ÷ Σ首单用户数（以首单用户数作为总用户基数的近似）
+  $('rp-kv-rate').textContent  = totalFirst>0?(totalRepeat/totalFirst*100).toFixed(1)+'%':'—';
+  $('rp-kv-users').textContent = totalFirst>0?totalRepeat+' 人':'—';
+  $('rp-kh-users').textContent = totalFirst>0?`复购订单数 / ${totalFirst} 首单用户`:'';
   $('rp-kv-arpu').textContent  = totalAll>0?'¥'+(rpAmt/totalAll).toFixed(1):'—';
   $('rp-kh-arpu').textContent  = totalAll>0?`总 ${totalAll} 笔订单`:'';
   $('rp-kv-amt').textContent   = totalAll>0?'¥'+fmt(Math.round(rpAmt)):'—';
