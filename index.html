@@ -459,6 +459,14 @@ let currentChannel='all';
 let trendInst=null, revInst=null, behaviorInst=null, cvrInst=null, rpDailyInst=null;
 
 /* ── 行为/复购数据按时间筛选 ── */
+/* 把 '5/13' 或 '5/3' 转为 '2026-05-13' 用于日期比较 */
+function toFullDate(d){
+  if(!d) return '';
+  if(d.length===10) return d; // 已是 YYYY-MM-DD
+  const parts=d.split('/');
+  const m=parts[0].padStart(2,'0'), day=parts[1].padStart(2,'0');
+  return `2026-${m}-${day}`;
+}
 function filterByRange(arr, range){
   if(range==='all')    return arr;
   if(range==='gray')   return arr.filter(r=>!r.launch);
@@ -466,13 +474,13 @@ function filterByRange(arr, range){
   if(range==='yesterday'){
     const y=new Date(); y.setDate(y.getDate()-1);
     const yd=y.toISOString().slice(0,10);
-    return arr.filter(r=>r.fd===yd);
+    return arr.filter(r=>toFullDate(r.fd||r.d)===yd);
   }
   if(range==='7d')  return arr.slice(-7);
   if(range==='14d') return arr.slice(-14);
   if(range==='custom'){
     const f=$('dateFrom').value, t=$('dateTo').value;
-    return arr.filter(r=>r.fd>=f&&r.fd<=t);
+    return arr.filter(r=>{ const fd=toFullDate(r.fd||r.d); return fd>=f&&fd<=t; });
   }
   return arr;
 }
