@@ -442,6 +442,24 @@ const COVERAGE = {all:{push:52000,reg:2520,ord:325},gray:{push:12000,reg:734,ord
 const LAST_UPDATED = "2026-05-30";
 // ===CHAOSTAR_DATA_END===
 
+/* ── 渠道拆分数据（自动部署区间外，勿删）── */
+const GZ_OVERRIDE = {
+  '2026-05-25':{reg:27,ord:19,tot:19,amt:252.06},
+  '2026-05-26':{reg:12,ord:12,tot:12,amt:138.87},
+  '2026-05-27':{reg:34,ord:36,tot:36,amt:357.29},
+  '2026-05-28':{reg:16,ord:28,tot:28,amt:492.77},
+  '2026-05-29':{reg:5, ord:12,tot:12,amt:231.03},
+};
+const TREND_SZ = TREND.map(r=>{
+  const gz=GZ_OVERRIDE[r.d];
+  if(!gz) return r;
+  return{...r,reg:r.reg-gz.reg,ord:r.ord-gz.ord,tot:r.tot-gz.tot,amt:+(r.amt-gz.amt).toFixed(2)};
+});
+const TREND_GZ = Object.keys(GZ_OVERRIDE).map(d=>{
+  const ref=TREND.find(r=>r.d===d);
+  return{d,l:ref?ref.l:d.slice(5),gz:true,...GZ_OVERRIDE[d]};
+});
+
 /* ── helpers ── */
 const $=id=>document.getElementById(id);
 const sum=(arr,k)=>arr.reduce((a,b)=>a+(b[k]||0),0);
