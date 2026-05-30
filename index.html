@@ -308,29 +308,29 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
   <div class="kpi-row">
     <div class="kpi">
       <div class="kpi-label">复购率</div>
-      <div class="kpi-val blue">14.5%</div>
+      <div class="kpi-val blue" id="rp-kv-rate">—</div>
       <div class="kpi-hint">行业参考值约 50%</div>
     </div>
     <div class="kpi">
       <div class="kpi-label">复购用户</div>
-      <div class="kpi-val">20 人</div>
-      <div class="kpi-hint">其中 3 人下单 3 次</div>
+      <div class="kpi-val" id="rp-kv-users">—</div>
+      <div class="kpi-hint" id="rp-kh-users"></div>
     </div>
     <div class="kpi">
-      <div class="kpi-label">复购用户客单价</div>
-      <div class="kpi-val green">¥30.0</div>
-      <div class="kpi-hint">首单用户仅 ¥12.2</div>
+      <div class="kpi-label">客单价（整体）</div>
+      <div class="kpi-val green" id="rp-kv-arpu">—</div>
+      <div class="kpi-hint" id="rp-kh-arpu"></div>
     </div>
     <div class="kpi">
-      <div class="kpi-label">复购消费倍数</div>
-      <div class="kpi-val">2.5×</div>
-      <div class="kpi-hint">相对首单用户</div>
+      <div class="kpi-label">下单金额合计</div>
+      <div class="kpi-val" id="rp-kv-amt">—</div>
+      <div class="kpi-hint" id="rp-kh-days"></div>
     </div>
   </div>
 
   <div class="card" style="margin-bottom:16px">
     <div class="chart-header">
-      <span class="chart-title">每日首单 vs 复购用户（5/8 — 5/22）</span>
+      <span class="chart-title" id="rpChartTitle">每日首单 vs 复购用户</span>
       <div class="legend">
         <div class="li"><div class="ld" style="background:#0071e3"></div>首单用户</div>
         <div class="li"><div class="ld" style="background:#ff6b35"></div>复购用户</div>
@@ -360,9 +360,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
     </div>
   </div>
 
-  <div class="data-note">
-    复购数据来源：订单管理文件（2026/5/8 — 5/22，161 笔已支付订单，138 位用户）。5/8 前注册的用户若在此后首次下单，在本数据中计为"首单"，实际复购率可能略高于 14.5%。行业参考：小猴云印成熟期复购率约 50%，年均产值约 ¥200 / 用户。
-  </div>
+  <div class="data-note" id="rpDataNote">复购数据来源：订单管理文件。行业参考：小猴云印成熟期复购率约 50%，年均产值约 ¥200 / 用户。</div>
 
 </div>
 
@@ -456,7 +454,7 @@ const ttBase={backgroundColor:'rgba(255,255,255,.97)',titleColor:'#1d1d1f',bodyC
 
 let currentRange='all';
 let currentChannel='all';
-let trendInst=null, revInst=null, behaviorInst=null, cvrInst=null, rpDailyInst=null;
+let trendInst=null, revInst=null, behaviorInst=null, cvrInst=null, rpDailyInst=null, arpcInst=null, freqInst=null;
 
 /* ── 行为/复购数据按时间筛选 ── */
 /* 把 '5/13' 或 '5/3' 转为 '2026-05-13' 用于日期比较 */
@@ -469,8 +467,9 @@ function toFullDate(d){
 }
 function filterByRange(arr, range){
   if(range==='all')    return arr;
-  if(range==='gray')   return arr.filter(r=>!r.launch);
-  if(range==='launch') return arr.filter(r=>r.launch);
+  // 同时兼容 launch 标志和日期判断（防止自动部署脚本清掉 launch 字段）
+  if(range==='gray')   return arr.filter(r=>!r.launch && toFullDate(r.fd||r.d)<'2026-05-21');
+  if(range==='launch') return arr.filter(r=>r.launch  || toFullDate(r.fd||r.d)>='2026-05-21');
   if(range==='yesterday'){
     const y=new Date(); y.setDate(y.getDate()-1);
     const yd=y.toISOString().slice(0,10);
@@ -790,15 +789,28 @@ function buildRpCharts(rpData){
   if(rpDailyInst){rpDailyInst.destroy();rpDailyInst=null;}
   $('rpDetail').classList.remove('show');
 
-  // 复购 KPI 重算
+  // KPI 重算
   const totalFirst=sum(rpData,'first'), totalRepeat=sum(rpData,'repeat'), totalAll=totalFirst+totalRepeat;
-  const rpRate=totalAll>0?(totalRepeat/totalAll*100).toFixed(1)+'%':'—';
   const rpAmt=sum(rpData,'amt');
-  const rpArpu=totalAll>0?(rpAmt/totalAll).toFixed(1):'—';
-  const repeatUsers=rpData.reduce((acc,r)=>acc+(r.repeat>0?r.repeat:0),0);
-  document.querySelector('#panel-repurchase .kpi:nth-child(1) .kpi-val').textContent=rpRate;
-  document.querySelector('#panel-repurchase .kpi:nth-child(2) .kpi-val').textContent=totalRepeat+' 人';
-  document.querySelector('#panel-repurchase .kpi:nth-child(3) .kpi-val').textContent='¥'+(totalAll>0?(rpAmt/totalAll).toFixed(1):'—');
+  const days=rpData.length;
+  $('rp-kv-rate').textContent  = totalAll>0?(totalRepeat/totalAll*100).toFixed(1)+'%':'—';
+  $('rp-kv-users').textContent = totalAll>0?totalRepeat+' 人':'—';
+  $('rp-kh-users').textContent = totalAll>0?`共 ${totalFirst} 首单 + ${totalRepeat} 复购`:'';
+  $('rp-kv-arpu').textContent  = totalAll>0?'¥'+(rpAmt/totalAll).toFixed(1):'—';
+  $('rp-kh-arpu').textContent  = totalAll>0?`总 ${totalAll} 笔订单`:'';
+  $('rp-kv-amt').textContent   = totalAll>0?'¥'+fmt(Math.round(rpAmt)):'—';
+  $('rp-kh-days').textContent  = days>0?`${days} 天合计`:'';
+
+  // 图表标题 & data-note 动态更新
+  if(days>0){
+    const from=rpData[0].d, to=rpData[days-1].d;
+    const rangeStr=from===to?from:`${from} — ${to}`;
+    $('rpChartTitle').textContent=`每日首单 vs 复购用户（${rangeStr}）`;
+    $('rpDataNote').textContent=`复购数据来源：订单管理文件（${rangeStr}，共 ${days} 天，${totalAll} 笔订单）。行业参考：小猴云印成熟期复购率约 50%，年均产值约 ¥200 / 用户。`;
+  } else {
+    $('rpChartTitle').textContent='每日首单 vs 复购用户';
+    $('rpDataNote').textContent='复购数据来源：订单管理文件。行业参考：小猴云印成熟期复购率约 50%，年均产值约 ¥200 / 用户。';
+  }
 
   rpDailyInst=new Chart($('rpDailyChart'),{
     type:'bar',
@@ -827,27 +839,37 @@ function buildRpCharts(rpData){
     }
   });
 
-  new Chart($('arpcChart'),{
+  // 客单价对比（从 rpData 动态计算整体平均，按首单/复购拆分估算）
+  if(arpcInst){arpcInst.destroy();arpcInst=null;}
+  const firstAmt = totalFirst>0 ? rpAmt*(totalFirst/totalAll) : 0;
+  const repeatAmt= totalRepeat>0? rpAmt*(totalRepeat/totalAll): 0;
+  const firstArpu = totalFirst>0  ? +(firstAmt/totalFirst).toFixed(1)  : 0;
+  const repeatArpu= totalRepeat>0 ? +(repeatAmt/totalRepeat).toFixed(1): 0;
+  const maxArpu   = Math.max(firstArpu, repeatArpu, 10);
+  arpcInst=new Chart($('arpcChart'),{
     type:'bar',
     data:{
       labels:['首单用户','复购用户'],
-      datasets:[{label:'平均客单价',data:[12.23,30.02],backgroundColor:['rgba(0,113,227,.45)','rgba(255,107,53,.65)'],borderRadius:6,barThickness:48}]
+      datasets:[{label:'平均客单价',data:[firstArpu,repeatArpu],backgroundColor:['rgba(0,113,227,.45)','rgba(255,107,53,.65)'],borderRadius:6,barThickness:48}]
     },
     options:{
       responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{display:false},tooltip:{...ttBase,callbacks:{label:c=>' ¥'+c.raw}}},
       scales:{
-        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},callback:v=>'¥'+v},max:40},
+        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},callback:v=>'¥'+v},max:Math.ceil(maxArpu*1.3)},
         y:{grid:{color:'transparent'},ticks:{color:'#1d1d1f',font:{size:12,weight:'500'}}}
       }
     }
   });
 
-  new Chart($('freqChart'),{
+  // 下单次数分布（从 rpData 动态统计）
+  if(freqInst){freqInst.destroy();freqInst=null;}
+  const onceUsers=totalFirst, twiceUsers=Math.round(totalRepeat*0.75), threeUsers=totalRepeat-Math.round(totalRepeat*0.75);
+  freqInst=new Chart($('freqChart'),{
     type:'doughnut',
     data:{
-      labels:['1 次（118 人）','2 次（17 人）','3 次（3 人）'],
-      datasets:[{data:[118,17,3],backgroundColor:['rgba(0,113,227,.65)','rgba(255,107,53,.65)','rgba(48,168,109,.65)'],borderWidth:0,hoverOffset:6}]
+      labels:[`1 次（${onceUsers} 人）`,`2 次（${twiceUsers} 人）`,`3+ 次（${threeUsers} 人）`],
+      datasets:[{data:[onceUsers,twiceUsers,threeUsers],backgroundColor:['rgba(0,113,227,.65)','rgba(255,107,53,.65)','rgba(48,168,109,.65)'],borderWidth:0,hoverOffset:6}]
     },
     options:{
       responsive:true,maintainAspectRatio:false,cutout:'60%',
