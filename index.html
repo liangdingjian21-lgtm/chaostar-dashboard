@@ -472,10 +472,10 @@ const COVERAGE = {all:{push:52000,reg:2991,ord:502},gray:{push:12000,reg:1188,or
 const LAST_UPDATED = "2026-05-30";
 // ===CHAOSTAR_DATA_END===
 
-/* ── 复购历史数据（精确用户维度，自动部署区间外，勿删）── */
-/* first=当天首次下单新用户数；repeat=当天首次产生复购行为的用户数（每人只计一次）*/
-/* Σfirst=286(总下单用户), Σrepeat=41(复购用户), 全量复购率=14.3% */
-const RP_HISTORY = [
+/* ── 渠道拆分复购数据（精确用户维度，自动部署区间外，勿删）── */
+/* first=当天首次下单新用户；repeat=当天首次产生复购行为的用户（每人只计一次，与first互斥）*/
+/* 深圳渠道：Σfirst=193, Σrepeat=27, 复购率=14.0% */
+const RP_HISTORY_SZ = [
   {d:'5/15',first:8, repeat:0, total:8, amt:109.01},
   {d:'5/17',first:1, repeat:0, total:1, amt:6.2},
   {d:'5/18',first:9, repeat:0, total:9, amt:103.05},
@@ -485,20 +485,20 @@ const RP_HISTORY = [
   {d:'5/22',first:23,repeat:7, total:30,amt:350.17},
   {d:'5/23',first:16,repeat:3, total:21,amt:256.73},
   {d:'5/24',first:3, repeat:1, total:5, amt:41.2},
-  {d:'5/25',first:36,repeat:2, total:40,amt:442.03},
-  {d:'5/26',first:30,repeat:4, total:35,amt:373.16},
-  {d:'5/27',first:44,repeat:3, total:52,amt:491.09},
-  {d:'5/28',first:35,repeat:9, total:46,amt:773.44},
-  {d:'5/29',first:26,repeat:5, total:35,amt:545.24},
+  {d:'5/25',first:17,repeat:1, total:18,amt:189.97},
+  {d:'5/26',first:19,repeat:2, total:22,amt:234.29},
+  {d:'5/27',first:11,repeat:1, total:15,amt:133.80},
+  {d:'5/28',first:13,repeat:3, total:16,amt:280.67},
+  {d:'5/29',first:18,repeat:2, total:22,amt:314.21},
 ];
-// 合并历史 + 脚本生成的当日数据，以日期去重（优先保留最新）
-(function mergeRP(){
-  const toFD=d=>{const p=d.split('/');return'2026-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');};
-  const map={};
-  [...RP_HISTORY,...RP_DAILY].forEach(r=>{map[r.d]=r;});
-  RP_DAILY.length=0;
-  Object.values(map).sort((a,b)=>toFD(a.d)<toFD(b.d)?-1:1).forEach(r=>RP_DAILY.push(r));
-})();
+/* 广州渠道：Σfirst=93, Σrepeat=14, 复购率=15.1% */
+const RP_HISTORY_GZ = [
+  {d:'5/25',first:19,repeat:1, total:19,amt:252.06},
+  {d:'5/26',first:11,repeat:2, total:12,amt:138.87},
+  {d:'5/27',first:33,repeat:2, total:36,amt:357.29},
+  {d:'5/28',first:22,repeat:6, total:28,amt:492.77},
+  {d:'5/29',first:8, repeat:3, total:12,amt:231.03},
+];
 
 /* ── 渠道拆分数据（自动部署区间外，勿删）── */
 const GZ_OVERRIDE = {
@@ -559,10 +559,13 @@ function filterByRange(arr, range){
 }
 function getFilteredBehavior(){ return filterByRange(BEHAVIOR, currentRange); }
 function getFilteredRP(){
-  // 渠道筛选：广州渠道5/25起，深圳/全渠道不限
-  let arr = RP_DAILY;
-  if(currentChannel==='gz') arr = arr.filter(r=>toFullDate(r.fd||r.d)>='2026-05-25');
-  return filterByRange(arr, currentRange);
+  // 全渠道：用自动部署的 RP_DAILY（含完整历史，实时更新）
+  // 深圳渠道：用精确用户维度的 RP_HISTORY_SZ（已剔除广州用户）
+  // 广州渠道：用精确用户维度的 RP_HISTORY_GZ
+  const src = currentChannel==='sz' ? RP_HISTORY_SZ
+            : currentChannel==='gz' ? RP_HISTORY_GZ
+            : RP_DAILY;
+  return filterByRange(src, currentRange);
 }
 
 /* ── active dataset by channel ── */
