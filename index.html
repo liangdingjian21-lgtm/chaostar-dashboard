@@ -132,9 +132,9 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
   <div class="vline"></div>
   <span class="filter-label">自定义日期</span>
   <div class="date-range">
-    <input type="date" id="dateFrom" value="2026-04-29" min="2026-04-29" max="2026-05-29">
+    <input type="date" id="dateFrom" value="2026-04-29" min="2026-04-29" max="2026-05-30">
     <span>—</span>
-    <input type="date" id="dateTo" value="2026-05-29" min="2026-04-29" max="2026-05-29">
+    <input type="date" id="dateTo" value="2026-05-30" min="2026-04-29" max="2026-05-30">
     <button class="date-apply" id="applyDate">应用</button>
   </div>
   <div class="vline"></div>
@@ -239,30 +239,30 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
   <div class="kpi-row">
     <div class="kpi">
       <div class="kpi-label">进入小程序总人次</div>
-      <div class="kpi-val blue">2,863</div>
-      <div class="kpi-hint">10 天合计</div>
+      <div class="kpi-val blue" id="bf-kv-enter">—</div>
+      <div class="kpi-hint" id="bf-kh-enter"></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">完成支付人数</div>
-      <div class="kpi-val">111</div>
-      <div class="kpi-hint">占进入人数 3.9%</div>
+      <div class="kpi-val" id="bf-kv-pay">—</div>
+      <div class="kpi-hint" id="bf-kh-pay"></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">注册→支付转化</div>
-      <div class="kpi-val green">16.8%</div>
-      <div class="kpi-hint">659 注册 → 111 人完成支付</div>
+      <div class="kpi-val green" id="bf-kv-regpay">—</div>
+      <div class="kpi-hint" id="bf-kh-regpay"></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">上传→结算转化</div>
-      <div class="kpi-val orange">60.8%</div>
-      <div class="kpi-hint">268 上传 → 163 点击结算</div>
+      <div class="kpi-val orange" id="bf-kv-upchk">—</div>
+      <div class="kpi-hint" id="bf-kh-upchk"></div>
     </div>
   </div>
 
   <!-- 行为漏斗 -->
   <div class="card" style="margin-bottom:16px">
     <div class="chart-header">
-      <span class="chart-title">小程序内行为漏斗（5/13 — 5/22 合计）</span>
+      <span class="chart-title" id="bfChartTitle">小程序内行为漏斗</span>
       <span class="chart-note">每步转化率基于前一步</span>
     </div>
     <div id="bfChart" style="padding:4px 0"></div>
@@ -390,20 +390,21 @@ const TREND = [
   {d:'2026-05-12',l:'5/12',reg:27,ord:0,tot:0,amt:0.0},
   {d:'2026-05-13',l:'5/13',reg:21,ord:0,tot:0,amt:0.0},
   {d:'2026-05-14',l:'5/14',reg:18,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-15',l:'5/15',reg:6,ord:8,tot:8,amt:109.01},
-  {d:'2026-05-17',l:'5/17',reg:1,ord:1,tot:1,amt:6.2},
-  {d:'2026-05-18',l:'5/18',reg:34,ord:9,tot:9,amt:103.05},
-  {d:'2026-05-19',l:'5/19',reg:124,ord:10,tot:11,amt:120.43,push:true},
-  {d:'2026-05-20',l:'5/20',reg:191,ord:16,tot:16,amt:204.54,push:true},
-  {d:'2026-05-21',l:'5/21',reg:142,ord:32,tot:35,amt:395.27,launch:true},
-  {d:'2026-05-22',l:'5/22',reg:125,ord:26,tot:30,amt:350.17,launch:true},
-  {d:'2026-05-23',l:'5/23',reg:29,ord:18,tot:21,amt:256.73,launch:true},
-  {d:'2026-05-24',l:'5/24',reg:18,ord:3,tot:5,amt:41.2,launch:true},
-  {d:'2026-05-25',l:'5/25',reg:629,ord:39,tot:40,amt:442.03,launch:true},
-  {d:'2026-05-26',l:'5/26',reg:231,ord:34,tot:35,amt:373.16,launch:true},
-  {d:'2026-05-27',l:'5/27',reg:392,ord:51,tot:52,amt:491.09,launch:true},
-  {d:'2026-05-28',l:'5/28',reg:155,ord:44,tot:46,amt:773.44,launch:true},
-  {d:'2026-05-29',l:'5/29',reg:65,ord:34,tot:35,amt:545.24,launch:true},
+  {d:'2026-05-15',l:'5/15',reg:6,ord:0,tot:0,amt:0.0},
+  {d:'2026-05-17',l:'5/17',reg:1,ord:0,tot:0,amt:0.0},
+  {d:'2026-05-18',l:'5/18',reg:34,ord:0,tot:0,amt:0.0},
+  {d:'2026-05-19',l:'5/19',reg:124,ord:0,tot:0,amt:0.0,push:true},
+  {d:'2026-05-20',l:'5/20',reg:191,ord:0,tot:0,amt:0.0,push:true},
+  {d:'2026-05-21',l:'5/21',reg:142,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-22',l:'5/22',reg:125,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-23',l:'5/23',reg:29,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-24',l:'5/24',reg:18,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-25',l:'5/25',reg:629,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-26',l:'5/26',reg:231,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-27',l:'5/27',reg:392,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-28',l:'5/28',reg:155,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-29',l:'5/29',reg:65,ord:0,tot:0,amt:0.0,launch:true},
+  {d:'2026-05-30',l:'5/30',reg:0,ord:7,tot:7,amt:96.66,launch:true},
 ];
 
 const BEHAVIOR = [
@@ -421,24 +422,11 @@ const BEHAVIOR = [
 ];
 
 const RP_DAILY = [
-  {d:'5/15', first:8,repeat:0, total:8,amt:109.01},
-  {d:'5/17', first:1,repeat:0, total:1,amt:6.2},
-  {d:'5/18', first:9,repeat:0, total:9,amt:103.05},
-  {d:'5/19', first:9,repeat:2, total:11,amt:120.43},
-  {d:'5/20', first:14,repeat:2, total:16,amt:204.54},
-  {d:'5/21', first:32,repeat:3, total:35,amt:395.27},
-  {d:'5/22', first:23,repeat:7, total:30,amt:350.17},
-  {d:'5/23', first:16,repeat:5, total:21,amt:256.73},
-  {d:'5/24', first:3,repeat:2, total:5,amt:41.2},
-  {d:'5/25', first:36,repeat:4, total:40,amt:442.03},
-  {d:'5/26', first:30,repeat:5, total:35,amt:373.16},
-  {d:'5/27', first:44,repeat:8, total:52,amt:491.09},
-  {d:'5/28', first:35,repeat:11, total:46,amt:773.44},
-  {d:'5/29', first:26,repeat:9, total:35,amt:545.24},
+  {d:'5/30', first:7,repeat:0, total:7,amt:96.66},
 ];
 
 /* 推广覆盖配置 */
-const COVERAGE = {all:{push:52000,reg:2520,ord:325},gray:{push:12000,reg:734,ord:44},launch:{push:40000,reg:1786,ord:281}};
+const COVERAGE = {all:{push:52000,reg:2520,ord:7},gray:{push:12000,reg:734,ord:0},launch:{push:40000,reg:1786,ord:7}};
 const LAST_UPDATED = "2026-05-30";
 // ===CHAOSTAR_DATA_END===
 
@@ -682,17 +670,40 @@ function buildRevenue(data){
 /* ── behavior funnel bars ── */
 function buildBehaviorFunnel(bData){
   const T=sum(bData,'enter'),R=sum(bData,'reg'),C=sum(bData,'click'),U=sum(bData,'upload'),CH=sum(bData,'checkout'),P=sum(bData,'pay');
+  const days=bData.length;
+
+  // 更新 KPI 卡片
+  $('bf-kv-enter').textContent = T>0?fmt(T):'—';
+  $('bf-kh-enter').textContent = days>0?`${days} 天合计`:'';
+  $('bf-kv-pay').textContent   = T>0?fmt(P):'—';
+  $('bf-kh-pay').textContent   = T>0?`占进入人数 ${(P/T*100).toFixed(1)}%`:'';
+  $('bf-kv-regpay').textContent= R>0?(P/R*100).toFixed(1)+'%':'—';
+  $('bf-kh-regpay').textContent= R>0?`${fmt(R)} 注册 → ${fmt(P)} 人完成支付`:'';
+  $('bf-kv-upchk').textContent = U>0?(CH/U*100).toFixed(1)+'%':'—';
+  $('bf-kh-upchk').textContent = U>0?`${fmt(U)} 上传 → ${fmt(CH)} 点击结算`:'';
+
+  // 更新漏斗图标题
+  if(days>0){
+    const from=bData[0].d, to=bData[days-1].d;
+    $('bfChartTitle').textContent = from===to ? `小程序内行为漏斗（${from}）` : `小程序内行为漏斗（${from} — ${to} 合计）`;
+  }
+
   const steps=[
-    {name:'进入小程序',  val:T, pct:'100%',                                   color:'#0071e3'},
-    {name:'注册绑定',    val:R, pct:T>0?(R/T*100).toFixed(1)+'%':'—',         color:'#3b82f6'},
-    {name:'点击开始打印',val:C, pct:R>0?(C/R*100).toFixed(1)+'%':'—',         color:'#5856d6'},
-    {name:'完成文件上传',val:U, pct:C>0?(U/C*100).toFixed(1)+'%':'—',         color:'#f57c00'},
-    {name:'点击结算',    val:CH,pct:U>0?(CH/U*100).toFixed(1)+'%':'—',        color:'#ff6b35'},
-    {name:'完成支付',    val:P, pct:CH>0?(P/CH*100).toFixed(1)+'%':'—',       color:'#30a86d'},
+    {name:'进入小程序',  val:T, pct:'100%',                             color:'#0071e3'},
+    {name:'注册绑定',    val:R, pct:T>0?(R/T*100).toFixed(1)+'%':'—',  color:'#3b82f6'},
+    {name:'点击开始打印',val:C, pct:R>0?(C/R*100).toFixed(1)+'%':'—',  color:'#5856d6'},
+    {name:'完成文件上传',val:U, pct:C>0?(U/C*100).toFixed(1)+'%':'—',  color:'#f57c00'},
+    {name:'点击结算',    val:CH,pct:U>0?(CH/U*100).toFixed(1)+'%':'—', color:'#ff6b35'},
+    {name:'完成支付',    val:P, pct:CH>0?(P/CH*100).toFixed(1)+'%':'—',color:'#30a86d'},
   ];
   const maxV=T||1;
   const el=$('bfChart');
-  if(!T){el.innerHTML='<p style="color:#aeaeb2;font-size:12px;padding:12px 0">所选时段暂无行为数据</p>';return;}
+  if(!T){
+    el.innerHTML='<p style="color:#aeaeb2;font-size:12px;padding:12px 0">所选时段暂无行为数据</p>';
+    ['bf-kv-enter','bf-kv-pay','bf-kv-regpay','bf-kv-upchk'].forEach(id=>$(id).textContent='—');
+    ['bf-kh-enter','bf-kh-pay','bf-kh-regpay','bf-kh-upchk'].forEach(id=>$(id).textContent='');
+    return;
+  }
   el.innerHTML=steps.map((s,i)=>`
     <div class="bf-step">
       <div class="bf-name">${s.name}</div>
