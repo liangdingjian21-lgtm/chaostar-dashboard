@@ -132,9 +132,9 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
   <div class="vline"></div>
   <span class="filter-label">自定义日期</span>
   <div class="date-range">
-    <input type="date" id="dateFrom" value="2026-04-22" min="2026-04-22" max="2026-05-30">
+    <input type="date" id="dateFrom" value="2026-04-20" min="2026-04-20" max="2026-05-30">
     <span>—</span>
-    <input type="date" id="dateTo" value="2026-05-30" min="2026-04-22" max="2026-05-30">
+    <input type="date" id="dateTo" value="2026-05-30" min="2026-04-20" max="2026-05-30">
     <button class="date-apply" id="applyDate">应用</button>
   </div>
   <div class="vline"></div>
@@ -370,13 +370,15 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 /* ── 数据 ── */
 // ===CHAOSTAR_DATA_START===
 const TREND = [
-  {d:'2026-04-22',l:'4/22',reg:0,ord:4,tot:4,amt:39.56},
-  {d:'2026-04-23',l:'4/23',reg:0,ord:7,tot:7,amt:80.8},
-  {d:'2026-04-24',l:'4/24',reg:0,ord:16,tot:16,amt:192.58},
-  {d:'2026-04-25',l:'4/25',reg:0,ord:4,tot:4,amt:84.02},
-  {d:'2026-04-26',l:'4/26',reg:0,ord:2,tot:2,amt:15.84},
-  {d:'2026-04-27',l:'4/27',reg:0,ord:12,tot:12,amt:145.98},
-  {d:'2026-04-28',l:'4/28',reg:0,ord:12,tot:14,amt:184.84},
+  {d:'2026-04-20',l:'4/20',reg:2,ord:0,tot:0,amt:0.0},
+  {d:'2026-04-21',l:'4/21',reg:1,ord:0,tot:0,amt:0.0},
+  {d:'2026-04-22',l:'4/22',reg:43,ord:4,tot:4,amt:39.56,push:true},
+  {d:'2026-04-23',l:'4/23',reg:126,ord:7,tot:7,amt:80.8,push:true},
+  {d:'2026-04-24',l:'4/24',reg:86,ord:16,tot:16,amt:192.58,push:true},
+  {d:'2026-04-25',l:'4/25',reg:33,ord:4,tot:4,amt:84.02},
+  {d:'2026-04-26',l:'4/26',reg:7,ord:2,tot:2,amt:15.84},
+  {d:'2026-04-27',l:'4/27',reg:80,ord:12,tot:12,amt:145.98,push:true},
+  {d:'2026-04-28',l:'4/28',reg:76,ord:12,tot:14,amt:184.84,push:true},
   {d:'2026-04-29',l:'4/29',reg:37,ord:7,tot:8,amt:96.6},
   {d:'2026-04-30',l:'4/30',reg:35,ord:12,tot:13,amt:108.69},
   {d:'2026-05-01',l:'5/1',reg:3,ord:1,tot:1,amt:4.57},
@@ -406,8 +408,8 @@ const TREND = [
   {d:'2026-05-26',l:'5/26',reg:231,ord:34,tot:35,amt:373.16,launch:true},
   {d:'2026-05-27',l:'5/27',reg:392,ord:51,tot:52,amt:491.09,launch:true},
   {d:'2026-05-28',l:'5/28',reg:155,ord:44,tot:46,amt:773.44,launch:true},
-  {d:'2026-05-29',l:'5/29',reg:65,ord:34,tot:35,amt:545.24,launch:true},
-  {d:'2026-05-30',l:'5/30',reg:0,ord:11,tot:12,amt:129.95,launch:true},
+  {d:'2026-05-29',l:'5/29',reg:66,ord:34,tot:35,amt:545.24,launch:true},
+  {d:'2026-05-30',l:'5/30',reg:16,ord:11,tot:12,amt:129.95,launch:true},
 ];
 
 const BEHAVIOR = [
@@ -466,7 +468,7 @@ const RP_DAILY = [
 ];
 
 /* 推广覆盖配置 */
-const COVERAGE = {all:{push:52000,reg:2520,ord:502},gray:{push:12000,reg:734,ord:210},launch:{push:40000,reg:1786,ord:292}};
+const COVERAGE = {all:{push:52000,reg:2991,ord:502},gray:{push:12000,reg:1188,ord:210},launch:{push:40000,reg:1803,ord:292}};
 const LAST_UPDATED = "2026-05-30";
 // ===CHAOSTAR_DATA_END===
 
