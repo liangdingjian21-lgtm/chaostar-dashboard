@@ -233,7 +233,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 <div class="panel" id="panel-funnel">
 
   <div class="data-note">
-    📊 行为数据来源：小程序用户数据报表（2026 / 5 / 13 — 5 / 22，共 10 天）。时间筛选不影响此页数据。
+    📊 行为数据来源：小程序用户数据报表（2026 / 5 / 13 — 5 / 23）。支持上方时间筛选，所选日期范围外暂无行为埋点数据时图表将显示空态。
   </div>
 
   <div class="kpi-row">
@@ -470,7 +470,28 @@ const ttBase={backgroundColor:'rgba(255,255,255,.97)',titleColor:'#1d1d1f',bodyC
 
 let currentRange='all';
 let currentChannel='all';
-let trendInst=null, revInst=null;
+let trendInst=null, revInst=null, behaviorInst=null, cvrInst=null, rpDailyInst=null;
+
+/* ── 行为/复购数据按时间筛选 ── */
+function filterByRange(arr, range){
+  if(range==='all')    return arr;
+  if(range==='gray')   return arr.filter(r=>!r.launch);
+  if(range==='launch') return arr.filter(r=>r.launch);
+  if(range==='yesterday'){
+    const y=new Date(); y.setDate(y.getDate()-1);
+    const yd=y.toISOString().slice(0,10);
+    return arr.filter(r=>r.fd===yd);
+  }
+  if(range==='7d')  return arr.slice(-7);
+  if(range==='14d') return arr.slice(-14);
+  if(range==='custom'){
+    const f=$('dateFrom').value, t=$('dateTo').value;
+    return arr.filter(r=>r.fd>=f&&r.fd<=t);
+  }
+  return arr;
+}
+function getFilteredBehavior(){ return filterByRange(BEHAVIOR, currentRange); }
+function getFilteredRP(){       return filterByRange(RP_DAILY,  currentRange); }
 
 /* ── active dataset by channel ── */
 function getDataset(){
@@ -659,18 +680,19 @@ function buildRevenue(data){
 }
 
 /* ── behavior funnel bars ── */
-function buildBehaviorFunnel(){
-  const T=2863,R=659,C=568,U=268,CH=163,P=111;
+function buildBehaviorFunnel(bData){
+  const T=sum(bData,'enter'),R=sum(bData,'reg'),C=sum(bData,'click'),U=sum(bData,'upload'),CH=sum(bData,'checkout'),P=sum(bData,'pay');
   const steps=[
-    {name:'进入小程序', val:T, pct:'100%',                          color:'#0071e3'},
-    {name:'注册绑定',   val:R, pct:(R/T*100).toFixed(1)+'%',        color:'#3b82f6'},
-    {name:'点击开始打印',val:C, pct:(C/R*100).toFixed(1)+'%',        color:'#5856d6'},
-    {name:'完成文件上传',val:U, pct:(U/C*100).toFixed(1)+'%',        color:'#f57c00'},
-    {name:'点击结算',   val:CH,pct:(CH/U*100).toFixed(1)+'%',        color:'#ff6b35'},
-    {name:'完成支付',   val:P, pct:(P/CH*100).toFixed(1)+'%',        color:'#30a86d'},
+    {name:'进入小程序',  val:T, pct:'100%',                                   color:'#0071e3'},
+    {name:'注册绑定',    val:R, pct:T>0?(R/T*100).toFixed(1)+'%':'—',         color:'#3b82f6'},
+    {name:'点击开始打印',val:C, pct:R>0?(C/R*100).toFixed(1)+'%':'—',         color:'#5856d6'},
+    {name:'完成文件上传',val:U, pct:C>0?(U/C*100).toFixed(1)+'%':'—',         color:'#f57c00'},
+    {name:'点击结算',    val:CH,pct:U>0?(CH/U*100).toFixed(1)+'%':'—',        color:'#ff6b35'},
+    {name:'完成支付',    val:P, pct:CH>0?(P/CH*100).toFixed(1)+'%':'—',       color:'#30a86d'},
   ];
-  const maxV=T;
+  const maxV=T||1;
   const el=$('bfChart');
+  if(!T){el.innerHTML='<p style="color:#aeaeb2;font-size:12px;padding:12px 0">所选时段暂无行为数据</p>';return;}
   el.innerHTML=steps.map((s,i)=>`
     <div class="bf-step">
       <div class="bf-name">${s.name}</div>
@@ -686,23 +708,25 @@ function buildBehaviorFunnel(){
 }
 
 /* ── behavior trend ── */
-function buildBehaviorTrend(){
-  new Chart($('behaviorChart'),{
+function buildBehaviorTrend(bData){
+  if(behaviorInst){behaviorInst.destroy();behaviorInst=null;}
+  $('bfDetail').classList.remove('show');
+  behaviorInst=new Chart($('behaviorChart'),{
     type:'line',
     data:{
-      labels:BEHAVIOR.map(r=>r.d),
+      labels:bData.map(r=>r.d),
       datasets:[
-        {label:'进入小程序',data:BEHAVIOR.map(r=>r.enter),borderColor:'#0071e3',backgroundColor:'rgba(0,113,227,.08)',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
-        {label:'点击打印',  data:BEHAVIOR.map(r=>r.click),borderColor:'#5856d6',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
-        {label:'完成上传',  data:BEHAVIOR.map(r=>r.upload),borderColor:'#f57c00',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
-        {label:'完成支付',  data:BEHAVIOR.map(r=>r.pay),  borderColor:'#30a86d',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+        {label:'进入小程序',data:bData.map(r=>r.enter),borderColor:'#0071e3',backgroundColor:'rgba(0,113,227,.08)',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+        {label:'点击打印',  data:bData.map(r=>r.click),borderColor:'#5856d6',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+        {label:'完成上传',  data:bData.map(r=>r.upload),borderColor:'#f57c00',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
+        {label:'完成支付',  data:bData.map(r=>r.pay),  borderColor:'#30a86d',backgroundColor:'transparent',fill:false,pointRadius:3,borderWidth:1.5,tension:.3},
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
       onClick(e,els){
         if(!els.length)return;
-        const r=BEHAVIOR[els[0].index];
+        const r=bData[els[0].index];
         $('bfDetailTitle').textContent=r.d+' 单日明细';
         $('bf-reg').textContent=r.reg;$('bf-enter').textContent=r.enter;
         $('bf-click').textContent=r.click;$('bf-upload').textContent=r.upload;
@@ -719,13 +743,14 @@ function buildBehaviorTrend(){
 }
 
 /* ── daily CVR chart ── */
-function buildCvrChart(){
-  const cvr=BEHAVIOR.map(r=>r.enter>0?+(r.pay/r.enter*100).toFixed(1):0);
-  new Chart($('cvrChart'),{
+function buildCvrChart(bData){
+  if(cvrInst){cvrInst.destroy();cvrInst=null;}
+  const cvr=bData.map(r=>r.enter>0?+(r.pay/r.enter*100).toFixed(1):0);
+  cvrInst=new Chart($('cvrChart'),{
     type:'bar',
     data:{
-      labels:BEHAVIOR.map(r=>r.d),
-      datasets:[{label:'进入→支付(%)',data:cvr,backgroundColor:BEHAVIOR.map(r=>r.d>='5/21'?'rgba(48,168,109,.65)':'rgba(0,113,227,.4)'),borderRadius:3}]
+      labels:bData.map(r=>r.d),
+      datasets:[{label:'进入→支付(%)',data:cvr,backgroundColor:bData.map(r=>r.launch?'rgba(48,168,109,.65)':'rgba(0,113,227,.4)'),borderRadius:3}]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
@@ -739,22 +764,34 @@ function buildCvrChart(){
 }
 
 /* ── repurchase charts ── */
-function buildRpCharts(){
-  let rpInst=null;
-  rpInst=new Chart($('rpDailyChart'),{
+function buildRpCharts(rpData){
+  if(rpDailyInst){rpDailyInst.destroy();rpDailyInst=null;}
+  $('rpDetail').classList.remove('show');
+
+  // 复购 KPI 重算
+  const totalFirst=sum(rpData,'first'), totalRepeat=sum(rpData,'repeat'), totalAll=totalFirst+totalRepeat;
+  const rpRate=totalAll>0?(totalRepeat/totalAll*100).toFixed(1)+'%':'—';
+  const rpAmt=sum(rpData,'amt');
+  const rpArpu=totalAll>0?(rpAmt/totalAll).toFixed(1):'—';
+  const repeatUsers=rpData.reduce((acc,r)=>acc+(r.repeat>0?r.repeat:0),0);
+  document.querySelector('#panel-repurchase .kpi:nth-child(1) .kpi-val').textContent=rpRate;
+  document.querySelector('#panel-repurchase .kpi:nth-child(2) .kpi-val').textContent=totalRepeat+' 人';
+  document.querySelector('#panel-repurchase .kpi:nth-child(3) .kpi-val').textContent='¥'+(totalAll>0?(rpAmt/totalAll).toFixed(1):'—');
+
+  rpDailyInst=new Chart($('rpDailyChart'),{
     type:'bar',
     data:{
-      labels:RP_DAILY.map(r=>r.d),
+      labels:rpData.map(r=>r.d),
       datasets:[
-        {label:'首单',data:RP_DAILY.map(r=>r.first),backgroundColor:'rgba(0,113,227,.55)',borderRadius:3,stack:'s'},
-        {label:'复购',data:RP_DAILY.map(r=>r.repeat),backgroundColor:'rgba(255,107,53,.7)',borderRadius:3,stack:'s'}
+        {label:'首单',data:rpData.map(r=>r.first),backgroundColor:'rgba(0,113,227,.55)',borderRadius:3,stack:'s'},
+        {label:'复购',data:rpData.map(r=>r.repeat),backgroundColor:'rgba(255,107,53,.7)',borderRadius:3,stack:'s'}
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
       onClick(e,els){
         if(!els.length)return;
-        const r=RP_DAILY[els[0].index];
+        const r=rpData[els[0].index];
         $('rpDetailTitle').textContent=r.d+' 单日明细';
         $('rp-first').textContent=r.first+' 人';$('rp-repeat').textContent=r.repeat+' 人';
         $('rp-total').textContent=r.total+' 单';$('rp-amt').textContent='¥'+r.amt.toFixed(2);
@@ -814,6 +851,8 @@ function updateHeader(){
 /* ── main refresh ── */
 function refresh(){
   const data=getFiltered(currentRange);
+  const bData=getFilteredBehavior();
+  const rpData=getFilteredRP();
   updateKPI(data);
   buildTrend(data);
   buildRevenue(data);
@@ -822,6 +861,10 @@ function refresh(){
   updateHeader();
   updateRangeDesc(data);
   $('dayDetail').classList.remove('show');
+  buildBehaviorFunnel(bData);
+  buildBehaviorTrend(bData);
+  buildCvrChart(bData);
+  buildRpCharts(rpData);
 }
 
 /* ── events ── */
@@ -954,10 +997,6 @@ function buildFooter(){
 
 /* ── init ── */
 refresh();
-buildBehaviorFunnel();
-buildBehaviorTrend();
-buildCvrChart();
-buildRpCharts();
 buildFooter();
 </script>
 </body>
