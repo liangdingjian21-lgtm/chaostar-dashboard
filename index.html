@@ -106,7 +106,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 <div class="header">
   <div>
     <h1>超星云印 · 运营数据看板</h1>
-    <p>小程序上线第 33 天 &nbsp;·&nbsp; 深圳全量推广第 2 天</p>
+    <p id="headerSub">小程序上线第 40 天 &nbsp;·&nbsp; 深圳全量推广第 9 天</p>
   </div>
   <span class="update-tag">更新于 2026 / 5 / 22</span>
 </div>
@@ -439,7 +439,7 @@ const RP_DAILY = [
 
 /* 推广覆盖配置 */
 const COVERAGE = {all:{push:52000,reg:2520,ord:325},gray:{push:12000,reg:734,ord:44},launch:{push:40000,reg:1786,ord:281}};
-const LAST_UPDATED = "2026-05-29";
+const LAST_UPDATED = "2026-05-30";
 // ===CHAOSTAR_DATA_END===
 
 /* ── helpers ── */
@@ -785,6 +785,14 @@ function updateRangeDesc(data){
   $('rangeDesc').textContent = data.length===1?from:`${from} — ${to}，共 ${data.length} 天`;
 }
 
+/* ── header subtitle ── */
+function updateHeader(){
+  const sub=$('headerSub');
+  if(!sub)return;
+  const chLabels={all:'全渠道视图',sz:'深圳渠道',gz:'广州版英语渠道'};
+  sub.textContent='小程序上线第 40 天  ·  ' + chLabels[currentChannel];
+}
+
 /* ── main refresh ── */
 function refresh(){
   const data=getFiltered(currentRange);
@@ -792,20 +800,37 @@ function refresh(){
   buildTrend(data);
   buildRevenue(data);
   buildMacroFunnel(currentRange);
+  buildPhaseCards();
+  updateHeader();
   updateRangeDesc(data);
   $('dayDetail').classList.remove('show');
 }
 
 /* ── events ── */
+$('channelSeg').addEventListener('click',e=>{
+  const btn=e.target.closest('.seg-btn');
+  if(!btn)return;
+  $('channelSeg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentChannel=btn.dataset.ch;
+  // GZ 渠道没有灰度期，若当前选了"灰度测试期"则重置为"全部"
+  if(currentChannel==='gz' && currentRange==='gray'){
+    currentRange='all';
+    $('rangeSeg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+    $('rangeSeg').querySelector('[data-range="all"]').classList.add('active');
+  }
+  refresh();
+});
+
 $('rangeSeg').addEventListener('click',e=>{
   const btn=e.target.closest('.seg-btn');
   if(!btn)return;
-  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  $('rangeSeg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   currentRange=btn.dataset.range;
   refresh();
 });
-$('applyDate').addEventListener('click',()=>{ document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active')); currentRange='custom'; refresh(); });
+$('applyDate').addEventListener('click',()=>{ $('rangeSeg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active')); currentRange='custom'; refresh(); });
 $('dateFrom').addEventListener('change',()=>{ currentRange='custom'; refresh(); });
 $('dateTo').addEventListener('change',()=>{ currentRange='custom'; refresh(); });
 
@@ -915,7 +940,6 @@ buildBehaviorFunnel();
 buildBehaviorTrend();
 buildCvrChart();
 buildRpCharts();
-buildLaunchCard();
 buildFooter();
 </script>
 </body>
