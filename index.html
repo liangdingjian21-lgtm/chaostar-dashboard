@@ -232,9 +232,7 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 <!-- ===== FUNNEL TAB ===== -->
 <div class="panel" id="panel-funnel">
 
-  <div class="data-note">
-    📊 行为数据来源：小程序用户数据报表（2026 / 5 / 13 — 5 / 23）。支持上方时间筛选，所选日期范围外暂无行为埋点数据时图表将显示空态。
-  </div>
+  <div class="data-note" id="bfDataNote">📊 行为数据来源：小程序用户数据报表</div>
 
   <div class="kpi-row">
     <div class="kpi">
@@ -682,10 +680,15 @@ function buildBehaviorFunnel(bData){
   $('bf-kv-upchk').textContent = U>0?(CH/U*100).toFixed(1)+'%':'—';
   $('bf-kh-upchk').textContent = U>0?`${fmt(U)} 上传 → ${fmt(CH)} 点击结算`:'';
 
-  // 更新漏斗图标题
+  // 更新说明文字 & 漏斗图标题
   if(days>0){
     const from=bData[0].d, to=bData[days-1].d;
-    $('bfChartTitle').textContent = from===to ? `小程序内行为漏斗（${from}）` : `小程序内行为漏斗（${from} — ${to} 合计）`;
+    const rangeStr = from===to ? from : `${from} — ${to}`;
+    $('bfDataNote').textContent = `📊 行为数据来源：小程序用户数据报表（${rangeStr}，共 ${days} 天）`;
+    $('bfChartTitle').textContent = `小程序内行为漏斗（${rangeStr} 合计）`;
+  } else {
+    $('bfDataNote').textContent = '📊 行为数据来源：小程序用户数据报表（所选时段无数据）';
+    $('bfChartTitle').textContent = '小程序内行为漏斗';
   }
 
   const steps=[
