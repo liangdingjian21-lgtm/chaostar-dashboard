@@ -827,12 +827,12 @@ function buildRpCharts(rpData){
   const rpAmt=sum(rpData,'amt');
   const days=rpData.length;
   // 复购率 = 产生过复购行为的用户数 ÷ 总下单用户数
-  // first=首次下单新用户数，repeat=首次产生复购行为的用户数（每人只计一次）
-  // 总下单用户数 = first + repeat（首单用户 + 首次复购用户，两者互斥无重叠）
-  const totalOrderUsers = totalFirst + totalRepeat;
-  $('rp-kv-rate').textContent  = totalOrderUsers>0?(totalRepeat/totalOrderUsers*100).toFixed(1)+'%':'—';
-  $('rp-kv-users').textContent = totalOrderUsers>0?totalRepeat+' 人':'—';
-  $('rp-kh-users').textContent = totalOrderUsers>0?`${totalRepeat} 复购用户 / ${totalOrderUsers} 总下单用户`:'';
+  // first = 各天首次下单新用户数，Σfirst = 总下单用户数（每人只在首单日计一次）
+  // repeat = 各天首次产生复购行为的用户数（每人只计一次，该用户已在首单日计入 first）
+  // 因此：总下单用户数 = Σfirst，复购率 = Σrepeat / Σfirst
+  $('rp-kv-rate').textContent  = totalFirst>0?(totalRepeat/totalFirst*100).toFixed(1)+'%':'—';
+  $('rp-kv-users').textContent = totalFirst>0?totalRepeat+' 人':'—';
+  $('rp-kh-users').textContent = totalFirst>0?`${totalRepeat} 复购用户 / ${totalFirst} 总下单用户`:'';
   $('rp-kv-arpu').textContent  = totalAll>0?'¥'+(rpAmt/totalAll).toFixed(1):'—';
   $('rp-kh-arpu').textContent  = totalAll>0?`总 ${totalAll} 笔订单`:'';
   $('rp-kv-amt').textContent   = totalAll>0?'¥'+fmt(Math.round(rpAmt)):'—';
