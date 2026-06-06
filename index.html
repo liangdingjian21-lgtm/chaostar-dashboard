@@ -132,9 +132,9 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
   <div class="vline"></div>
   <span class="filter-label">自定义日期</span>
   <div class="date-range">
-    <input type="date" id="dateFrom" value="2026-04-29" min="2026-04-29" max="2026-05-30">
+    <input type="date" id="dateFrom" value="2026-05-06" min="2026-05-06" max="2026-06-06">
     <span>—</span>
-    <input type="date" id="dateTo" value="2026-05-30" min="2026-04-29" max="2026-05-30">
+    <input type="date" id="dateTo" value="2026-06-06" min="2026-05-06" max="2026-06-06">
     <button class="date-apply" id="applyDate">应用</button>
   </div>
   <div class="vline"></div>
@@ -370,13 +370,6 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 /* ── 数据 ── */
 // ===CHAOSTAR_DATA_START===
 const TREND = [
-  {d:'2026-04-29',l:'4/29',reg:37,ord:0,tot:0,amt:0.0},
-  {d:'2026-04-30',l:'4/30',reg:35,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-01',l:'5/1',reg:3,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-02',l:'5/2',reg:23,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-03',l:'5/3',reg:9,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-04',l:'5/4',reg:5,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-05',l:'5/5',reg:7,ord:0,tot:0,amt:0.0},
   {d:'2026-05-06',l:'5/6',reg:61,ord:0,tot:0,amt:0.0,push:true},
   {d:'2026-05-07',l:'5/7',reg:40,ord:0,tot:0,amt:0.0,push:true},
   {d:'2026-05-08',l:'5/8',reg:46,ord:0,tot:0,amt:0.0,push:true},
@@ -395,12 +388,19 @@ const TREND = [
   {d:'2026-05-22',l:'5/22',reg:125,ord:0,tot:0,amt:0.0,launch:true},
   {d:'2026-05-23',l:'5/23',reg:29,ord:0,tot:0,amt:0.0,launch:true},
   {d:'2026-05-24',l:'5/24',reg:18,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-25',l:'5/25',reg:629,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-26',l:'5/26',reg:231,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-27',l:'5/27',reg:392,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-28',l:'5/28',reg:155,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-29',l:'5/29',reg:65,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-30',l:'5/30',reg:0,ord:7,tot:7,amt:96.66,launch:true},
+  {d:'2026-05-25',l:'5/25',reg:629,ord:19,tot:20,amt:252.06,launch:true},
+  {d:'2026-05-26',l:'5/26',reg:231,ord:12,tot:13,amt:138.87,launch:true},
+  {d:'2026-05-27',l:'5/27',reg:392,ord:36,tot:36,amt:357.29,launch:true},
+  {d:'2026-05-28',l:'5/28',reg:155,ord:28,tot:28,amt:492.77,launch:true},
+  {d:'2026-05-29',l:'5/29',reg:66,ord:12,tot:12,amt:231.03,launch:true},
+  {d:'2026-05-30',l:'5/30',reg:41,ord:9,tot:10,amt:111.96,launch:true},
+  {d:'2026-05-31',l:'5/31',reg:29,ord:11,tot:11,amt:138.44,launch:true},
+  {d:'2026-06-01',l:'6/1',reg:223,ord:34,tot:35,amt:339.13,launch:true},
+  {d:'2026-06-02',l:'6/2',reg:143,ord:27,tot:29,amt:360.86,launch:true},
+  {d:'2026-06-03',l:'6/3',reg:140,ord:31,tot:33,amt:385.3,launch:true},
+  {d:'2026-06-04',l:'6/4',reg:135,ord:19,tot:20,amt:449.65,launch:true},
+  {d:'2026-06-05',l:'6/5',reg:129,ord:31,tot:37,amt:485.18,launch:true},
+  {d:'2026-06-06',l:'6/6',reg:34,ord:16,tot:16,amt:238.51,launch:true},
 ];
 
 const BEHAVIOR = [
@@ -414,15 +414,41 @@ const BEHAVIOR = [
   {d:'5/20',reg:191, enter:902,  click:153, upload:57,checkout:26,  pay:16},
   {d:'5/21',reg:142, enter:480,  click:140, upload:76,checkout:37,  pay:32},
   {d:'5/22',reg:125, enter:432,  click:136, upload:61,checkout:38,  pay:26},
-  {d:'5/23',reg:27, enter:130,  click:47, upload:28,checkout:22,  pay:18},
+  {d:'5/23',reg:29, enter:134,  click:48, upload:29,checkout:22,  pay:18},
+  {d:'5/24',reg:18, enter:71,  click:15, upload:11,checkout:5,  pay:3},
+  {d:'5/25',reg:629, enter:2136,  click:564, upload:166,checkout:60,  pay:39},
+  {d:'5/26',reg:231, enter:843,  click:231, upload:91,checkout:46,  pay:34},
+  {d:'5/27',reg:392, enter:1500,  click:375, upload:147,checkout:76,  pay:51},
+  {d:'5/28',reg:155, enter:578,  click:186, upload:106,checkout:66,  pay:46},
+  {d:'5/29',reg:66, enter:274,  click:84, upload:56,checkout:49,  pay:35},
+  {d:'5/30',reg:40, enter:173,  click:52, upload:33,checkout:25,  pay:21},
+  {d:'5/31',reg:29, enter:138,  click:43, upload:31,checkout:28,  pay:24},
+  {d:'6/1',reg:223, enter:1188,  click:249, upload:99,checkout:61,  pay:42},
+  {d:'6/2',reg:143, enter:681,  click:197, upload:118,checkout:72,  pay:54},
+  {d:'6/3',reg:140, enter:587,  click:167, upload:90,checkout:59,  pay:41},
+  {d:'6/4',reg:135, enter:473,  click:181, upload:102,checkout:73,  pay:50},
+  {d:'6/5',reg:129, enter:438,  click:190, upload:118,checkout:84,  pay:62},
+  {d:'6/6',reg:34, enter:158,  click:53, upload:33,checkout:28,  pay:21},
 ];
 
 const RP_DAILY = [
-  {d:'5/30', first:7,repeat:0, total:7,amt:96.66},
+  {d:'5/25', first:19,repeat:1, total:20,amt:252.06},
+  {d:'5/26', first:11,repeat:2, total:13,amt:138.87},
+  {d:'5/27', first:33,repeat:3, total:36,amt:357.29},
+  {d:'5/28', first:22,repeat:6, total:28,amt:492.77},
+  {d:'5/29', first:8,repeat:4, total:12,amt:231.03},
+  {d:'5/30', first:8,repeat:2, total:10,amt:111.96},
+  {d:'5/31', first:7,repeat:4, total:11,amt:138.44},
+  {d:'6/1', first:30,repeat:5, total:35,amt:339.13},
+  {d:'6/2', first:22,repeat:7, total:29,amt:360.86},
+  {d:'6/3', first:24,repeat:9, total:33,amt:385.3},
+  {d:'6/4', first:13,repeat:7, total:20,amt:449.65},
+  {d:'6/5', first:23,repeat:14, total:37,amt:485.18},
+  {d:'6/6', first:9,repeat:7, total:16,amt:238.51},
 ];
 
 /* 推广覆盖配置 */
-const COVERAGE = {all:{push:52000,reg:2520,ord:7},gray:{push:12000,reg:734,ord:0},launch:{push:40000,reg:1786,ord:7}};
+const COVERAGE = {all:{push:52000,reg:3276,ord:285},gray:{push:12000,reg:615,ord:0},launch:{push:40000,reg:2661,ord:285}};
 const LAST_UPDATED = "2026-06-06";
 // ===CHAOSTAR_DATA_END===
 
