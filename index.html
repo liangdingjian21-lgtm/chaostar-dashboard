@@ -132,9 +132,9 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
   <div class="vline"></div>
   <span class="filter-label">自定义日期</span>
   <div class="date-range">
-    <input type="date" id="dateFrom" value="2026-05-06" min="2026-05-06" max="2026-06-06">
+    <input type="date" id="dateFrom" value="2026-04-20" min="2026-04-20" max="2026-05-30">
     <span>—</span>
-    <input type="date" id="dateTo" value="2026-06-06" min="2026-05-06" max="2026-06-06">
+    <input type="date" id="dateTo" value="2026-05-30" min="2026-04-20" max="2026-05-30">
     <button class="date-apply" id="applyDate">应用</button>
   </div>
   <div class="vline"></div>
@@ -370,37 +370,53 @@ body{background:#f5f5f7;color:#1d1d1f;font-family:-apple-system,'PingFang SC','H
 /* ── 数据 ── */
 // ===CHAOSTAR_DATA_START===
 const TREND = [
-  {d:'2026-05-06',l:'5/6',reg:61,ord:0,tot:0,amt:0.0,push:true},
-  {d:'2026-05-07',l:'5/7',reg:40,ord:0,tot:0,amt:0.0,push:true},
-  {d:'2026-05-08',l:'5/8',reg:46,ord:0,tot:0,amt:0.0,push:true},
-  {d:'2026-05-09',l:'5/9',reg:13,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-10',l:'5/10',reg:7,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-11',l:'5/11',reg:26,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-12',l:'5/12',reg:27,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-13',l:'5/13',reg:21,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-14',l:'5/14',reg:18,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-15',l:'5/15',reg:6,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-17',l:'5/17',reg:1,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-18',l:'5/18',reg:34,ord:0,tot:0,amt:0.0},
-  {d:'2026-05-19',l:'5/19',reg:124,ord:0,tot:0,amt:0.0,push:true},
-  {d:'2026-05-20',l:'5/20',reg:191,ord:0,tot:0,amt:0.0,push:true},
-  {d:'2026-05-21',l:'5/21',reg:142,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-22',l:'5/22',reg:125,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-23',l:'5/23',reg:29,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-24',l:'5/24',reg:18,ord:0,tot:0,amt:0.0,launch:true},
-  {d:'2026-05-25',l:'5/25',reg:629,ord:19,tot:20,amt:252.06,launch:true},
-  {d:'2026-05-26',l:'5/26',reg:231,ord:12,tot:13,amt:138.87,launch:true},
-  {d:'2026-05-27',l:'5/27',reg:392,ord:36,tot:36,amt:357.29,launch:true},
-  {d:'2026-05-28',l:'5/28',reg:155,ord:28,tot:28,amt:492.77,launch:true},
-  {d:'2026-05-29',l:'5/29',reg:66,ord:12,tot:12,amt:231.03,launch:true},
-  {d:'2026-05-30',l:'5/30',reg:41,ord:9,tot:10,amt:111.96,launch:true},
-  {d:'2026-05-31',l:'5/31',reg:29,ord:11,tot:11,amt:138.44,launch:true},
-  {d:'2026-06-01',l:'6/1',reg:223,ord:34,tot:35,amt:339.13,launch:true},
-  {d:'2026-06-02',l:'6/2',reg:143,ord:27,tot:29,amt:360.86,launch:true},
-  {d:'2026-06-03',l:'6/3',reg:140,ord:31,tot:33,amt:385.3,launch:true},
-  {d:'2026-06-04',l:'6/4',reg:135,ord:19,tot:20,amt:449.65,launch:true},
-  {d:'2026-06-05',l:'6/5',reg:129,ord:31,tot:37,amt:485.18,launch:true},
-  {d:'2026-06-06',l:'6/6',reg:34,ord:16,tot:16,amt:238.51,launch:true},
+  {d:'2026-04-20',l:'4/20',reg:2,ord:0,tot:0,amt:0.0},
+  {d:'2026-04-21',l:'4/21',reg:1,ord:0,tot:0,amt:0.0},
+  {d:'2026-04-22',l:'4/22',reg:43,ord:4,tot:4,amt:39.56,push:true},
+  {d:'2026-04-23',l:'4/23',reg:126,ord:7,tot:7,amt:80.8,push:true},
+  {d:'2026-04-24',l:'4/24',reg:86,ord:16,tot:16,amt:192.58,push:true},
+  {d:'2026-04-25',l:'4/25',reg:33,ord:4,tot:4,amt:84.02},
+  {d:'2026-04-26',l:'4/26',reg:7,ord:2,tot:2,amt:15.84},
+  {d:'2026-04-27',l:'4/27',reg:80,ord:12,tot:12,amt:145.98,push:true},
+  {d:'2026-04-28',l:'4/28',reg:76,ord:12,tot:14,amt:184.84,push:true},
+  {d:'2026-04-29',l:'4/29',reg:37,ord:7,tot:8,amt:96.6},
+  {d:'2026-04-30',l:'4/30',reg:35,ord:12,tot:13,amt:108.69},
+  {d:'2026-05-01',l:'5/1',reg:3,ord:1,tot:1,amt:4.57},
+  {d:'2026-05-02',l:'5/2',reg:23,ord:3,tot:3,amt:27.26},
+  {d:'2026-05-03',l:'5/3',reg:9,ord:4,tot:4,amt:36.9},
+  {d:'2026-05-04',l:'5/4',reg:5,ord:1,tot:1,amt:6.22},
+  {d:'2026-05-05',l:'5/5',reg:7,ord:3,tot:4,amt:80.77},
+  {d:'2026-05-06',l:'5/6',reg:61,ord:12,tot:12,amt:125.82,push:true},
+  {d:'2026-05-07',l:'5/7',reg:40,ord:15,tot:15,amt:151.5,push:true},
+  {d:'2026-05-08',l:'5/8',reg:46,ord:16,tot:16,amt:210.53,push:true},
+  {d:'2026-05-09',l:'5/9',reg:13,ord:11,tot:11,amt:162.34},
+  {d:'2026-05-10',l:'5/10',reg:7,ord:3,tot:3,amt:84.49},
+  {d:'2026-05-11',l:'5/11',reg:26,ord:6,tot:6,amt:111.0},
+  {d:'2026-05-12',l:'5/12',reg:27,ord:7,tot:7,amt:57.64},
+  {d:'2026-05-13',l:'5/13',reg:21,ord:4,tot:4,amt:71.97},
+  {d:'2026-05-14',l:'5/14',reg:18,ord:4,tot:4,amt:55.56},
+  {d:'2026-05-15',l:'5/15',reg:6,ord:8,tot:8,amt:109.01},
+  {d:'2026-05-17',l:'5/17',reg:1,ord:1,tot:1,amt:6.2},
+  {d:'2026-05-18',l:'5/18',reg:34,ord:9,tot:9,amt:103.05},
+  {d:'2026-05-19',l:'5/19',reg:124,ord:10,tot:11,amt:120.43,push:true},
+  {d:'2026-05-20',l:'5/20',reg:191,ord:16,tot:16,amt:204.54,push:true},
+  {d:'2026-05-21',l:'5/21',reg:142,ord:32,tot:35,amt:395.27,launch:true},
+  {d:'2026-05-22',l:'5/22',reg:125,ord:26,tot:30,amt:350.17,launch:true},
+  {d:'2026-05-23',l:'5/23',reg:29,ord:18,tot:21,amt:256.73,launch:true},
+  {d:'2026-05-24',l:'5/24',reg:18,ord:3,tot:5,amt:41.2,launch:true},
+  {d:'2026-05-25',l:'5/25',reg:629,ord:39,tot:40,amt:442.03,launch:true},
+  {d:'2026-05-26',l:'5/26',reg:231,ord:34,tot:35,amt:373.16,launch:true},
+  {d:'2026-05-27',l:'5/27',reg:392,ord:51,tot:52,amt:491.09,launch:true},
+  {d:'2026-05-28',l:'5/28',reg:155,ord:44,tot:46,amt:773.44,launch:true},
+  {d:'2026-05-29',l:'5/29',reg:66,ord:34,tot:35,amt:545.24,launch:true},
+  {d:'2026-05-30',l:'5/30',reg:41, ord:20,tot:23,amt:257.99,launch:true},
+  {d:'2026-05-31',l:'5/31',reg:29, ord:23,tot:23,amt:246.02,launch:true},
+  {d:'2026-06-01',l:'6/1', reg:223,ord:42,tot:44,amt:450.26,launch:true},
+  {d:'2026-06-02',l:'6/2', reg:143,ord:54,tot:56,amt:681.36,launch:true},
+  {d:'2026-06-03',l:'6/3', reg:140,ord:41,tot:43,amt:487.41,launch:true},
+  {d:'2026-06-04',l:'6/4', reg:135,ord:50,tot:52,amt:829.81,launch:true},
+  {d:'2026-06-05',l:'6/5', reg:129,ord:61,tot:69,amt:854.94,launch:true},
+  {d:'2026-06-06',l:'6/6', reg:34, ord:22,tot:22,amt:280.76,launch:true},
 ];
 
 const BEHAVIOR = [
@@ -414,42 +430,53 @@ const BEHAVIOR = [
   {d:'5/20',reg:191, enter:902,  click:153, upload:57,checkout:26,  pay:16},
   {d:'5/21',reg:142, enter:480,  click:140, upload:76,checkout:37,  pay:32},
   {d:'5/22',reg:125, enter:432,  click:136, upload:61,checkout:38,  pay:26},
-  {d:'5/23',reg:29, enter:134,  click:48, upload:29,checkout:22,  pay:18},
-  {d:'5/24',reg:18, enter:71,  click:15, upload:11,checkout:5,  pay:3},
-  {d:'5/25',reg:629, enter:2136,  click:564, upload:166,checkout:60,  pay:39},
-  {d:'5/26',reg:231, enter:843,  click:231, upload:91,checkout:46,  pay:34},
-  {d:'5/27',reg:392, enter:1500,  click:375, upload:147,checkout:76,  pay:51},
-  {d:'5/28',reg:155, enter:578,  click:186, upload:106,checkout:66,  pay:46},
-  {d:'5/29',reg:66, enter:274,  click:84, upload:56,checkout:49,  pay:35},
-  {d:'5/30',reg:40, enter:173,  click:52, upload:33,checkout:25,  pay:21},
-  {d:'5/31',reg:29, enter:138,  click:43, upload:31,checkout:28,  pay:24},
-  {d:'6/1',reg:223, enter:1188,  click:249, upload:99,checkout:61,  pay:42},
-  {d:'6/2',reg:143, enter:681,  click:197, upload:118,checkout:72,  pay:54},
-  {d:'6/3',reg:140, enter:587,  click:167, upload:90,checkout:59,  pay:41},
-  {d:'6/4',reg:135, enter:473,  click:181, upload:102,checkout:73,  pay:50},
-  {d:'6/5',reg:129, enter:438,  click:190, upload:118,checkout:84,  pay:62},
-  {d:'6/6',reg:34, enter:158,  click:53, upload:33,checkout:28,  pay:21},
+  {d:'5/23',reg:27, enter:130,  click:47, upload:28,checkout:22,  pay:18},
 ];
 
 const RP_DAILY = [
-  {d:'5/25', first:19,repeat:1, total:20,amt:252.06},
-  {d:'5/26', first:11,repeat:2, total:13,amt:138.87},
-  {d:'5/27', first:33,repeat:3, total:36,amt:357.29},
-  {d:'5/28', first:22,repeat:6, total:28,amt:492.77},
-  {d:'5/29', first:8,repeat:4, total:12,amt:231.03},
-  {d:'5/30', first:8,repeat:2, total:10,amt:111.96},
-  {d:'5/31', first:7,repeat:4, total:11,amt:138.44},
-  {d:'6/1', first:30,repeat:5, total:35,amt:339.13},
-  {d:'6/2', first:22,repeat:7, total:29,amt:360.86},
-  {d:'6/3', first:24,repeat:9, total:33,amt:385.3},
-  {d:'6/4', first:13,repeat:7, total:20,amt:449.65},
-  {d:'6/5', first:23,repeat:14, total:37,amt:485.18},
-  {d:'6/6', first:9,repeat:7, total:16,amt:238.51},
+  {d:'4/22', first:4,repeat:0, total:4,amt:39.56},
+  {d:'4/23', first:7,repeat:0, total:7,amt:80.8},
+  {d:'4/24', first:16,repeat:0, total:16,amt:192.58},
+  {d:'4/25', first:3,repeat:1, total:4,amt:84.02},
+  {d:'4/26', first:1,repeat:1, total:2,amt:15.84},
+  {d:'4/27', first:10,repeat:2, total:12,amt:145.98},
+  {d:'4/28', first:11,repeat:3, total:14,amt:184.84},
+  {d:'4/29', first:5,repeat:3, total:8,amt:96.6},
+  {d:'4/30', first:9,repeat:4, total:13,amt:108.69},
+  {d:'5/1', first:0,repeat:1, total:1,amt:4.57},
+  {d:'5/2', first:3,repeat:0, total:3,amt:27.26},
+  {d:'5/3', first:3,repeat:1, total:4,amt:36.9},
+  {d:'5/4', first:0,repeat:1, total:1,amt:6.22},
+  {d:'5/5', first:3,repeat:1, total:4,amt:80.77},
+  {d:'5/6', first:11,repeat:1, total:12,amt:125.82},
+  {d:'5/7', first:14,repeat:1, total:15,amt:151.5},
+  {d:'5/8', first:15,repeat:1, total:16,amt:210.53},
+  {d:'5/9', first:10,repeat:1, total:11,amt:162.34},
+  {d:'5/10', first:2,repeat:1, total:3,amt:84.49},
+  {d:'5/11', first:5,repeat:1, total:6,amt:111.0},
+  {d:'5/12', first:2,repeat:5, total:7,amt:57.64},
+  {d:'5/13', first:2,repeat:2, total:4,amt:71.97},
+  {d:'5/14', first:4,repeat:0, total:4,amt:55.56},
+  {d:'5/15', first:5,repeat:3, total:8,amt:109.01},
+  {d:'5/17', first:1,repeat:0, total:1,amt:6.2},
+  {d:'5/18', first:9,repeat:0, total:9,amt:103.05},
+  {d:'5/19', first:7,repeat:4, total:11,amt:120.43},
+  {d:'5/20', first:14,repeat:2, total:16,amt:204.54},
+  {d:'5/21', first:28,repeat:7, total:35,amt:395.27},
+  {d:'5/22', first:18,repeat:12, total:30,amt:350.17},
+  {d:'5/23', first:14,repeat:7, total:21,amt:256.73},
+  {d:'5/24', first:3,repeat:2, total:5,amt:41.2},
+  {d:'5/25', first:34,repeat:6, total:40,amt:442.03},
+  {d:'5/26', first:27,repeat:8, total:35,amt:373.16},
+  {d:'5/27', first:43,repeat:9, total:52,amt:491.09},
+  {d:'5/28', first:35,repeat:11, total:46,amt:773.44},
+  {d:'5/29', first:23,repeat:12, total:35,amt:545.24},
+  {d:'5/30', first:6,repeat:6, total:12,amt:129.95},
 ];
 
 /* 推广覆盖配置 */
-const COVERAGE = {all:{push:52000,reg:3276,ord:285},gray:{push:12000,reg:615,ord:0},launch:{push:40000,reg:2661,ord:285}};
-const LAST_UPDATED = "2026-06-06";
+const COVERAGE = {all:{push:52000,reg:2991,ord:502},gray:{push:12000,reg:1188,ord:210},launch:{push:40000,reg:1803,ord:292}};
+const LAST_UPDATED = "2026-05-30";
 // ===CHAOSTAR_DATA_END===
 
 /* ── 渠道拆分复购数据（精确用户维度，自动部署区间外，勿删）── */
@@ -480,14 +507,23 @@ const RP_HISTORY_GZ = [
   {d:'5/29',first:8, repeat:3, total:12,amt:231.03},
 ];
 
-/* ── 渠道拆分数据（自动部署区间外，勿删）── */
+// ===GZ_DATA_START===
 const GZ_OVERRIDE = {
-  '2026-05-25':{reg:27,ord:19,tot:19,amt:252.06},
-  '2026-05-26':{reg:12,ord:12,tot:12,amt:138.87},
-  '2026-05-27':{reg:34,ord:36,tot:36,amt:357.29},
-  '2026-05-28':{reg:16,ord:28,tot:28,amt:492.77},
+  '2026-05-25':{reg:45,ord:19,tot:19,amt:252.06},
+  '2026-05-26':{reg:16,ord:12,tot:12,amt:138.87},
+  '2026-05-27':{reg:47,ord:36,tot:36,amt:357.29},
+  '2026-05-28':{reg:20,ord:28,tot:28,amt:492.77},
   '2026-05-29':{reg:5, ord:12,tot:12,amt:231.03},
+  '2026-05-30':{reg:4, ord:9, tot:9, amt:111.96},
+  '2026-05-31':{reg:3, ord:11,tot:11,amt:138.44},
+  '2026-06-01':{reg:32,ord:34,tot:34,amt:339.13},
+  '2026-06-02':{reg:14,ord:27,tot:27,amt:360.86},
+  '2026-06-03':{reg:15,ord:31,tot:31,amt:385.30},
+  '2026-06-04':{reg:9, ord:19,tot:19,amt:449.65},
+  '2026-06-05':{reg:13,ord:31,tot:31,amt:485.18},
+  '2026-06-06':{reg:7, ord:17,tot:17,amt:252.21},
 };
+// ===GZ_DATA_END===
 const TREND_SZ = TREND.map(r=>{
   const gz=GZ_OVERRIDE[r.d];
   if(!gz) return r;
