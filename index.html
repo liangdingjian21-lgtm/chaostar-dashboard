@@ -416,7 +416,16 @@ const TREND = [
   {d:'2026-06-03',l:'6/3', reg:140,ord:41,tot:43,amt:487.41,launch:true},
   {d:'2026-06-04',l:'6/4', reg:135,ord:50,tot:52,amt:829.81,launch:true},
   {d:'2026-06-05',l:'6/5', reg:129,ord:61,tot:69,amt:854.94,launch:true},
-  {d:'2026-06-06',l:'6/6', reg:34, ord:22,tot:22,amt:280.76,launch:true},
+  {d:'2026-06-06',l:'6/6', reg:45, ord:29,tot:31,amt:355.82,launch:true},
+  {d:'2026-06-07',l:'6/7', reg:29, ord:20,tot:23,amt:211.51,launch:true},
+  {d:'2026-06-08',l:'6/8', reg:110,ord:42,tot:48,amt:1028.34,launch:true},
+  {d:'2026-06-09',l:'6/9', reg:90, ord:46,tot:53,amt:540.70,launch:true},
+  {d:'2026-06-10',l:'6/10',reg:119,ord:58,tot:66,amt:740.10,launch:true},
+  {d:'2026-06-11',l:'6/11',reg:74, ord:37,tot:39,amt:608.83,launch:true},
+  {d:'2026-06-12',l:'6/12',reg:153,ord:90,tot:102,amt:1304.56,launch:true},
+  {d:'2026-06-13',l:'6/13',reg:38, ord:41,tot:52,amt:612.29,launch:true},
+  {d:'2026-06-14',l:'6/14',reg:33, ord:24,tot:25,amt:253.68,launch:true},
+  {d:'2026-06-15',l:'6/15',reg:32, ord:10,tot:12,amt:151.88,launch:true},
 ];
 
 const BEHAVIOR = [
@@ -430,7 +439,22 @@ const BEHAVIOR = [
   {d:'5/20',reg:191, enter:902,  click:153, upload:57,checkout:26,  pay:16},
   {d:'5/21',reg:142, enter:480,  click:140, upload:76,checkout:37,  pay:32},
   {d:'5/22',reg:125, enter:432,  click:136, upload:61,checkout:38,  pay:26},
-  {d:'5/23',reg:27, enter:130,  click:47, upload:28,checkout:22,  pay:18},
+  {d:'5/23',reg:27, enter:130,  click:47, upload:28, checkout:22, pay:18},
+  {d:'6/1', reg:223,enter:1188, click:249,upload:99, checkout:61, pay:42},
+  {d:'6/2', reg:143,enter:681,  click:197,upload:118,checkout:72, pay:54},
+  {d:'6/3', reg:140,enter:587,  click:167,upload:90, checkout:59, pay:41},
+  {d:'6/4', reg:135,enter:473,  click:181,upload:102,checkout:73, pay:50},
+  {d:'6/5', reg:129,enter:438,  click:190,upload:118,checkout:84, pay:62},
+  {d:'6/6', reg:45, enter:236,  click:74, upload:47, checkout:38, pay:29},
+  {d:'6/7', reg:29, enter:139,  click:45, upload:27, checkout:21, pay:20},
+  {d:'6/8', reg:110,enter:484,  click:165,upload:103,checkout:63, pay:42},
+  {d:'6/9', reg:90, enter:375,  click:149,upload:96, checkout:59, pay:46},
+  {d:'6/10',reg:119,enter:462,  click:169,upload:104,checkout:80, pay:58},
+  {d:'6/11',reg:74, enter:314,  click:108,upload:80, checkout:56, pay:37},
+  {d:'6/12',reg:153,enter:564,  click:233,upload:169,checkout:118,pay:90},
+  {d:'6/13',reg:38, enter:231,  click:90, upload:56, checkout:51, pay:41},
+  {d:'6/14',reg:33, enter:174,  click:62, upload:44, checkout:33, pay:24},
+  {d:'6/15',reg:32, enter:147,  click:47, upload:24, checkout:14, pay:10},
 ];
 
 const RP_DAILY = [
@@ -471,12 +495,28 @@ const RP_DAILY = [
   {d:'5/27', first:43,repeat:9, total:52,amt:491.09},
   {d:'5/28', first:35,repeat:11, total:46,amt:773.44},
   {d:'5/29', first:23,repeat:12, total:35,amt:545.24},
-  {d:'5/30', first:6,repeat:6, total:12,amt:129.95},
+  {d:'5/30', first:14,repeat:6, total:20,amt:257.99},
+  {d:'5/31', first:16,repeat:7, total:23,amt:246.02},
+  {d:'6/1',  first:35,repeat:7, total:42,amt:450.26},
+  {d:'6/2',  first:44,repeat:10,total:54,amt:681.36},
+  {d:'6/3',  first:32,repeat:9, total:41,amt:487.41},
+  {d:'6/4',  first:35,repeat:15,total:50,amt:829.81},
+  {d:'6/5',  first:47,repeat:14,total:61,amt:854.94},
+  {d:'6/6',  first:14,repeat:14,total:28,amt:355.82},
+  {d:'6/7',  first:14,repeat:5, total:19,amt:211.51},
+  {d:'6/8',  first:28,repeat:13,total:41,amt:1028.34},
+  {d:'6/9',  first:25,repeat:20,total:45,amt:540.70},
+  {d:'6/10', first:42,repeat:15,total:57,amt:740.10},
+  {d:'6/11', first:27,repeat:9, total:36,amt:608.83},
+  {d:'6/12', first:55,repeat:33,total:88,amt:1304.56},
+  {d:'6/13', first:26,repeat:15,total:41,amt:612.29},
+  {d:'6/14', first:12,repeat:11,total:23,amt:253.68},
+  {d:'6/15', first:5, repeat:4, total:9, amt:151.88},
 ];
 
 /* 推广覆盖配置 */
 const COVERAGE = {all:{push:52000,reg:2991,ord:502},gray:{push:12000,reg:1188,ord:210},launch:{push:40000,reg:1803,ord:292}};
-const LAST_UPDATED = "2026-05-30";
+const LAST_UPDATED = "2026-06-15";
 // ===CHAOSTAR_DATA_END===
 
 /* ── 渠道拆分复购数据（精确用户维度，自动部署区间外，勿删）── */
